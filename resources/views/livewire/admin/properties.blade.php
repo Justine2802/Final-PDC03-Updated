@@ -3,21 +3,24 @@
         <span class="font-medium text-foreground">Properties</span>
     </x-slot:header>
 
-    {{-- Action bar above table --}}
-    <div class="flex items-center justify-between mb-4">
-        <div></div>
+    {{-- Page Header --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-semibold text-foreground font-serif tracking-tight">Properties</h1>
+            <p class="text-xs text-dim mt-1">Manage all listed properties.</p>
+        </div>
         <button wire:click="create"
-            class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+            class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all" style="box-shadow: var(--shadow-xs);">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
             Add Property
         </button>
     </div>
 
-    <div class="rounded-lg border border-line bg-card" x-data="{ showFilters: false }">
+    <div class="rounded-sm border border-line bg-card" x-data="{ showFilters: false }" style="box-shadow: var(--shadow-xs);">
         {{-- Toolbar --}}
         <div class="p-4 border-b border-line flex flex-col sm:flex-row sm:items-center gap-3">
             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search properties..."
-                class="w-full sm:max-w-xs rounded-md border border-line bg-card px-3 py-2 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                class="w-full sm:max-w-xs rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
 
             <div class="flex items-center gap-2 sm:ml-auto">
                 <button @click="showFilters = !showFilters"
@@ -25,7 +28,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                     Filters
                     @if($activeFilterCount > 0)
-                        <span class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-primary text-on-primary text-xs font-medium px-1.5">{{ $activeFilterCount }}</span>
+                        <span class="inline-flex items-center justify-center h-4 min-w-[1rem] rounded-sm bg-foreground text-on-primary text-[10px] font-semibold px-1">{{ $activeFilterCount }}</span>
                     @endif
                 </button>
 
@@ -99,8 +102,8 @@
         <div class="overflow-x-auto transition-opacity duration-200" wire:loading.class="opacity-50 pointer-events-none">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-line bg-subtle">
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                    <tr class="border-b border-line bg-subtle/50">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('id')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 ID
                                 @if($sortBy === 'id')
@@ -108,7 +111,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('title')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Title
                                 @if($sortBy === 'title')
@@ -116,7 +119,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('price')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Price
                                 @if($sortBy === 'price')
@@ -124,9 +127,9 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">City</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Status</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">City</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Status</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('created_at')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Created
                                 @if($sortBy === 'created_at')
@@ -134,7 +137,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Actions</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">
@@ -145,7 +148,7 @@
                             <td class="px-4 py-3 text-foreground">&#8369;{{ number_format($property->price, 2) }}</td>
                             <td class="px-4 py-3 text-foreground">{{ $property->address?->barangay?->city?->name ?? '—' }}</td>
                             <td class="px-4 py-3">
-                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $property->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                                <span class="inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider {{ $property->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
                                     {{ $property->status ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
@@ -187,8 +190,8 @@
     {{-- Multi-Step Create / Edit Modal --}}
     @if($showModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-black/50" wire:click="$set('showModal', false)"></div>
-            <div class="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-lg border border-line bg-card shadow-xl flex flex-col">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showModal', false)"></div>
+            <div class="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-sm border border-line bg-card flex flex-col" style="box-shadow: var(--shadow-lg);">
 
                 {{-- Header --}}
                 <div class="flex items-center justify-between p-4 border-b border-line shrink-0">
@@ -519,8 +522,8 @@
     {{-- View Modal --}}
     @if($showViewModal && $viewProperty)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-black/50" wire:click="$set('showViewModal', false)"></div>
-            <div class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-lg border border-line bg-card shadow-xl">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showViewModal', false)"></div>
+            <div class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
                 <div class="flex items-center justify-between p-4 border-b border-line">
                     <h3 class="text-lg font-semibold text-foreground">Property Details</h3>
                     <button wire:click="$set('showViewModal', false)" class="text-dim hover:text-foreground">
@@ -616,8 +619,8 @@
     {{-- Delete Confirmation Modal --}}
     @if($showDeleteModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-black/50" wire:click="$set('showDeleteModal', false)"></div>
-            <div class="relative w-full max-w-sm rounded-lg border border-line bg-card shadow-xl">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showDeleteModal', false)"></div>
+            <div class="relative w-full max-w-sm rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
                 <div class="p-6 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />

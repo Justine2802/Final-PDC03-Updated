@@ -3,7 +3,13 @@
         <span class="font-medium text-foreground">Users</span>
     </x-slot:header>
 
-    <div class="rounded-lg border border-line bg-card" x-data="{ showFilters: false, columns: { id: true, name: true, email: true, role: true, status: true, phone: false, joined: true } }">
+    {{-- Page Header --}}
+    <div class="mb-6">
+        <h1 class="text-xl font-semibold text-foreground font-serif tracking-tight">Users</h1>
+        <p class="text-xs text-dim mt-1">Manage all registered users.</p>
+    </div>
+
+    <div class="rounded-sm border border-line bg-card" x-data="{ showFilters: false, columns: { id: true, name: true, email: true, role: true, status: true, phone: false, joined: true } }" style="box-shadow: var(--shadow-xs);">
         {{-- Toolbar: Search + Filter toggle + Export --}}
         <div class="p-4 border-b border-line flex flex-col sm:flex-row sm:items-center gap-3">
             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search users..."
@@ -107,8 +113,8 @@
         <div class="overflow-x-auto transition-opacity duration-200" wire:loading.class="opacity-50 pointer-events-none">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-line bg-subtle">
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.id">
+                    <tr class="border-b border-line bg-subtle/50">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.id">
                             <button wire:click="sortBy('id')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 ID
                                 @if($sortBy === 'id')
@@ -116,7 +122,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.name">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.name">
                             <button wire:click="sortBy('name')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Name
                                 @if($sortBy === 'name')
@@ -124,7 +130,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.email">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.email">
                             <button wire:click="sortBy('email')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Email
                                 @if($sortBy === 'email')
@@ -132,9 +138,9 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.role">Role</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.status">Status</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.phone">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.role">Role</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.status">Status</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.phone">
                             <button wire:click="sortBy('phone')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Phone
                                 @if($sortBy === 'phone')
@@ -142,7 +148,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim" x-show="columns.joined">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]" x-show="columns.joined">
                             <button wire:click="sortBy('created_at')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Joined
                                 @if($sortBy === 'created_at')
@@ -150,7 +156,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Actions</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">

@@ -94,7 +94,7 @@
                         {{-- Price Card --}}
                         <div class="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-6">
                             <p class="text-sm font-bold text-dim uppercase tracking-wider mb-2">Monthly Rate</p>
-                            <p class="text-4xl font-extrabold text-primary">${{ number_format($property->price, 0) }}</p>
+                            <p class="text-4xl font-extrabold text-primary">₱{{ number_format($property->price, 0) }}</p>
                             <p class="text-sm text-dim mt-2">/month</p>
                         </div>
 

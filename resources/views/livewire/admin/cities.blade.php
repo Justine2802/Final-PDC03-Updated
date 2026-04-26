@@ -3,17 +3,20 @@
         <span class="font-medium text-foreground">Cities / Municipalities</span>
     </x-slot:header>
 
-    {{-- Action bar --}}
-    <div class="flex items-center justify-between mb-4">
-        <div></div>
+    {{-- Page Header --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-semibold text-foreground font-serif tracking-tight">Cities / Municipalities</h1>
+            <p class="text-xs text-dim mt-1">Manage cities and their barangays.</p>
+        </div>
         <button wire:click="create"
-            class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+            class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all" style="box-shadow: var(--shadow-xs);">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
             Add City
         </button>
     </div>
 
-    <div class="rounded-lg border border-line bg-card">
+    <div class="rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-xs);">
         {{-- Toolbar --}}
         <div class="p-4 border-b border-line space-y-3">
             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search cities..."
@@ -52,8 +55,8 @@
         <div class="overflow-x-auto transition-opacity duration-200" wire:loading.class="opacity-50 pointer-events-none">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-line bg-subtle">
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                    <tr class="border-b border-line bg-subtle/50">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('id')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 ID
                                 @if($sortBy === 'id')
@@ -61,7 +64,7 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('name')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 City / Municipality
                                 @if($sortBy === 'name')
@@ -69,9 +72,9 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Province</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Region</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Province</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Region</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
                             <button wire:click="sortBy('zip_code')" class="inline-flex items-center gap-1 hover:text-foreground">
                                 Zip Code
                                 @if($sortBy === 'zip_code')
@@ -79,8 +82,8 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Barangays</th>
-                        <th class="px-4 py-3 text-left font-medium text-dim">Actions</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Barangays</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">
@@ -132,8 +135,8 @@
     {{-- Create / Edit City Modal --}}
     @if($showModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-black/50" wire:click="$set('showModal', false)"></div>
-            <div class="relative w-full max-w-md rounded-lg border border-line bg-card shadow-xl">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showModal', false)"></div>
+            <div class="relative w-full max-w-md rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
                 <div class="flex items-center justify-between p-4 border-b border-line">
                     <h3 class="text-lg font-semibold text-foreground">{{ $editingId ? 'Edit City' : 'Add City' }}</h3>
                     <button wire:click="$set('showModal', false)" class="text-dim hover:text-foreground">
@@ -199,8 +202,8 @@
     {{-- Barangay Management Modal --}}
     @if($showBarangayModal && $barangayCity)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-black/50" wire:click="$set('showBarangayModal', false)"></div>
-            <div class="relative w-full max-w-lg rounded-lg border border-line bg-card shadow-xl">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showBarangayModal', false)"></div>
+            <div class="relative w-full max-w-lg rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
                 <div class="flex items-center justify-between p-4 border-b border-line">
                     <h3 class="text-lg font-semibold text-foreground">Barangays — {{ $barangayCity->name }}</h3>
                     <button wire:click="$set('showBarangayModal', false)" class="text-dim hover:text-foreground">
@@ -243,8 +246,8 @@
     {{-- Delete Confirmation Modal --}}
     @if($showDeleteModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-black/50" wire:click="$set('showDeleteModal', false)"></div>
-            <div class="relative w-full max-w-sm rounded-lg border border-line bg-card shadow-xl">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showDeleteModal', false)"></div>
+            <div class="relative w-full max-w-sm rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
                 <div class="p-6 text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />

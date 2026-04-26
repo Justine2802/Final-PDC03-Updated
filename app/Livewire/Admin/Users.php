@@ -20,6 +20,17 @@ class Users extends Component
     public string $dateTo = '';
     public int $perPage = 10;
 
+    // View modal
+    public ?int $viewingId = null;
+
+    // Edit modal
+    public ?int $editingId    = null;
+    public string $editName   = '';
+    public string $editEmail  = '';
+    public string $editPhone  = '';
+    public string $editRole   = '';
+    public string $editStatus = '';
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -64,6 +75,66 @@ class Users extends Component
     {
         $this->reset(['search', 'filterRole', 'filterStatus', 'dateFrom', 'dateTo']);
         $this->resetPage();
+    }
+
+    // ── View ──────────────────────────────────────────────
+    public function viewUser(int $id): void
+    {
+        $this->viewingId = $id;
+    }
+
+    public function closeView(): void
+    {
+        $this->viewingId = null;
+    }
+
+    // ── Edit ──────────────────────────────────────────────
+    public function openEdit(int $id): void
+    {
+        $user = User::find($id);
+        if (!$user) return;
+
+        $this->editingId    = $id;
+        $this->editName     = $user->name;
+        $this->editEmail    = $user->email;
+        $this->editPhone    = $user->phone ?? '';
+        $this->editRole     = $user->role;
+        $this->editStatus   = $user->status;
+        $this->resetValidation();
+    }
+
+    public function closeEdit(): void
+    {
+        $this->editingId = null;
+        $this->resetValidation();
+    }
+
+    public function saveEdit(): void
+    {
+        $this->validate([
+            'editName'   => 'required|string|min:2|max:255',
+            'editEmail'  => 'required|email|unique:users,email,' . $this->editingId,
+            'editPhone'  => 'nullable|string|max:20',
+            'editRole'   => 'required|in:admin,renter',
+            'editStatus' => 'required|in:active,inactive,suspended',
+        ]);
+
+        User::find($this->editingId)?->update([
+            'name'   => $this->editName,
+            'email'  => $this->editEmail,
+            'phone'  => $this->editPhone ?: null,
+            'role'   => $this->editRole,
+            'status' => $this->editStatus,
+        ]);
+
+        $this->dispatch('notify', message: 'User updated successfully.');
+        $this->closeEdit();
+    }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        User::find($id)?->update(['status' => $status]);
+        $this->dispatch('notify', message: 'User status updated.');
     }
 
     public function export(): StreamedResponse
@@ -148,7 +219,11 @@ class Users extends Component
             ->filter()
             ->count();
 
-        return view('livewire.admin.users', compact('users', 'activeFilterCount'))
+        $viewing = $this->viewingId
+            ? User::find($this->viewingId)
+            : null;
+
+        return view('livewire.admin.users', compact('users', 'activeFilterCount', 'viewing'))
             ->layout('components.layouts.admin')
             ->title('Users');
     }

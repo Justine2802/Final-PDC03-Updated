@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return auth()->user()->role === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('renter.home');
+    }
+    return redirect()->route('login');
 });
 
 // Auth Routes
@@ -40,6 +45,8 @@ Route::prefix('renter')->middleware(['auth', 'renter'])->group(function () {
     Route::get('/', \App\Livewire\Renter\Home::class)->name('renter.home');
     Route::get('/explore', \App\Livewire\Renter\Explore::class)->name('renter.explore');
     Route::get('/favorites', \App\Livewire\Renter\Favorites::class)->name('renter.favorites');
+    Route::get('/reservations', \App\Livewire\Renter\MyReservations::class)->name('renter.reservations');
+    Route::get('/reviews', \App\Livewire\Renter\MyReviews::class)->name('renter.reviews');
     Route::get('/profile', \App\Livewire\Renter\Profile::class)->name('renter.profile');
     Route::get('/inquiries', \App\Livewire\Renter\MyInquiries::class)->name('renter.inquiries');
     
