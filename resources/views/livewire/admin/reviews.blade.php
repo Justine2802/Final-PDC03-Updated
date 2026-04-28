@@ -51,6 +51,8 @@
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Renter</th>
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Rating</th>
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Comment</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Pros</th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Cons</th>
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Verified</th>
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Date</th>
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Actions</th>
@@ -72,6 +74,8 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-dim max-w-[180px] truncate">{{ $review->comment ?? '—' }}</td>
+                            <td class="px-4 py-3 text-green-600 dark:text-green-400 max-w-[140px] truncate text-xs">{{ is_array($review->pros) ? implode(', ', $review->pros) : ($review->pros ?? '—') }}</td>
+                            <td class="px-4 py-3 text-red-500 dark:text-red-400 max-w-[140px] truncate text-xs">{{ is_array($review->cons) ? implode(', ', $review->cons) : ($review->cons ?? '—') }}</td>
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider {{ $review->is_verified ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-subtle text-dim' }}">
                                     {{ $review->is_verified ? 'Verified' : 'Unverified' }}
@@ -93,7 +97,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-dim">No reviews found.</td>
+                            <td colspan="10" class="px-4 py-8 text-center text-dim">No reviews found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -143,6 +147,28 @@
                         <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Comment</span>
                         <p class="text-sm text-foreground bg-subtle/50 border border-line rounded-sm p-3">{{ $viewing->comment ?? 'No comment provided.' }}</p>
                     </div>
+                    @if($viewing->pros || $viewing->cons)
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Pros</span>
+                                <div class="text-sm text-foreground bg-green-50 dark:bg-green-500/5 border border-green-200 dark:border-green-500/20 rounded-sm p-3">
+                                    <div class="flex items-start gap-2">
+                                        <svg class="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                        <span class="text-green-700 dark:text-green-400">{{ is_array($viewing->pros) ? implode(', ', $viewing->pros) : ($viewing->pros ?? 'None listed') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Cons</span>
+                                <div class="text-sm text-foreground bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-sm p-3">
+                                    <div class="flex items-start gap-2">
+                                        <svg class="w-3.5 h-3.5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <span class="text-red-700 dark:text-red-400">{{ is_array($viewing->cons) ? implode(', ', $viewing->cons) : ($viewing->cons ?? 'None listed') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <div>
                             <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Status</span>

@@ -94,6 +94,7 @@ class Users extends Component
         $user = User::find($id);
         if (!$user) return;
 
+        $this->viewingId    = null; // close view modal if open
         $this->editingId    = $id;
         $this->editName     = $user->name;
         $this->editEmail    = $user->email;

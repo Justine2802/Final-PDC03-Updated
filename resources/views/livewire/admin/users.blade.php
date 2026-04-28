@@ -46,20 +46,20 @@
 
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open"
-                        class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
+                        class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-3 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         Export
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     <div x-show="open" @click.away="open = false" x-transition
-                        class="absolute right-0 mt-1 w-40 rounded-md border border-line bg-card shadow-lg z-50">
+                        class="absolute right-0 mt-1 w-40 rounded-sm border border-line bg-card z-50" style="box-shadow: var(--shadow-lg);">
                         <button wire:click="export" @click="open = false"
-                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-t-md">
+                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-t-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Export as CSV
                         </button>
                         <button wire:click="exportExcel" @click="open = false"
-                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-b-md border-t border-line">
+                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-b-sm border-t border-line">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Export as Excel
                         </button>
@@ -176,9 +176,11 @@
                             <td class="px-4 py-3 text-dim" x-show="columns.phone">{{ $user->phone ?? '—' }}</td>
                             <td class="px-4 py-3 text-dim" x-show="columns.joined">{{ $user->created_at->format('M d, Y') }}</td>
                             <td class="px-4 py-3">
-                                <div class="flex gap-2">
-                                    <button class="text-sm text-dim hover:text-foreground">View</button>
-                                    <button class="text-sm text-dim hover:text-foreground">Edit</button>
+                                <div class="flex items-center gap-2">
+                                    <button wire:click="viewUser({{ $user->id }})"
+                                            class="text-xs text-dim hover:text-foreground font-medium transition-colors">View</button>
+                                    <button wire:click="openEdit({{ $user->id }})"
+                                            class="text-xs text-dim hover:text-foreground font-medium transition-colors">Edit</button>
                                 </div>
                             </td>
                         </tr>
@@ -194,7 +196,7 @@
         <div class="p-4 border-t border-line flex items-center justify-between gap-4">
             <div class="flex items-center gap-2 text-sm text-dim">
                 <span>Rows per page:</span>
-                <select wire:model.live="perPage" class="rounded-md border border-line bg-card text-foreground text-sm py-1 px-2 focus:outline-none focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20">
+                <select wire:model.live="perPage" class="rounded-sm border border-line bg-page text-foreground text-sm py-1 px-2 focus:outline-none focus:ring-1 focus:ring-foreground">
                     <option value="5">5</option>
                     <option value="10">10</option>
                     <option value="25">25</option>
@@ -206,4 +208,134 @@
             </div>
         </div>
     </div>
+
+    {{-- View User Modal --}}
+    @if($viewing)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="closeView"></div>
+            <div class="relative w-full max-w-md rounded-sm border border-line bg-card overflow-hidden" style="box-shadow: var(--shadow-lg);">
+                <div class="flex items-center justify-between p-4 border-b border-line">
+                    <div>
+                        <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">{{ $viewing->name }}</h3>
+                        <p class="text-[10px] text-dim mt-0.5">Joined {{ $viewing->created_at->format('M d, Y') }}</p>
+                    </div>
+                    @php
+                        $vBadge = match($viewing->status) {
+                            'active'    => 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400',
+                            'suspended' => 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400',
+                            default     => 'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400',
+                        };
+                    @endphp
+                    <span class="inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider {{ $vBadge }}">
+                        {{ ucfirst($viewing->status) }}
+                    </span>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-subtle/50 border border-line rounded-sm p-3 overflow-hidden">
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Email</span>
+                            <p class="text-sm font-medium text-foreground truncate" title="{{ $viewing->email }}">{{ $viewing->email }}</p>
+                        </div>
+                        <div class="bg-subtle/50 border border-line rounded-sm p-3">
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Role</span>
+                            <p class="text-sm font-medium text-foreground">{{ ucfirst($viewing->role) }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Phone</span>
+                            <span class="text-foreground">{{ $viewing->phone ?? '—' }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">ID</span>
+                            <span class="text-foreground">#{{ $viewing->id }}</span>
+                        </div>
+                    </div>
+                    @if($viewing->bio)
+                        <div>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Bio</span>
+                            <p class="text-sm text-foreground bg-subtle/50 border border-line rounded-sm p-3">{{ $viewing->bio }}</p>
+                        </div>
+                    @endif
+                </div>
+                <div class="flex items-center justify-between p-4 border-t border-line">
+                    <div class="flex items-center gap-2">
+                        <button wire:click="openEdit({{ $viewing->id }})"
+                                class="rounded-sm bg-foreground px-3 py-1.5 text-xs font-medium text-on-primary hover:opacity-90 transition-all">Edit</button>
+                        @if($viewing->status === 'active')
+                            <button wire:click="updateStatus({{ $viewing->id }}, 'suspended')"
+                                    class="rounded-sm bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 transition-colors">Suspend</button>
+                        @elseif($viewing->status === 'suspended')
+                            <button wire:click="updateStatus({{ $viewing->id }}, 'active')"
+                                    class="rounded-sm bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors">Activate</button>
+                        @endif
+                    </div>
+                    <button wire:click="closeView"
+                            class="rounded-sm border border-line px-4 py-1.5 text-xs font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Edit User Modal --}}
+    @if($editingId)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="closeEdit"></div>
+            <div class="relative w-full max-w-md rounded-sm border border-line bg-card overflow-hidden" style="box-shadow: var(--shadow-lg);">
+                <div class="flex items-center justify-between p-4 border-b border-line">
+                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">Edit User</h3>
+                    <button wire:click="closeEdit" class="text-dim hover:text-foreground transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div>
+                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Name</label>
+                        <input type="text" wire:model="editName"
+                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
+                        @error('editName') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Email</label>
+                        <input type="email" wire:model="editEmail"
+                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
+                        @error('editEmail') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Phone</label>
+                        <input type="text" wire:model="editPhone"
+                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
+                        @error('editPhone') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Role</label>
+                            <select wire:model="editRole"
+                                class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                                <option value="admin">Admin</option>
+                                <option value="renter">Renter</option>
+                            </select>
+                            @error('editRole') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Status</label>
+                            <select wire:model="editStatus"
+                                class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                            @error('editStatus') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-2 p-4 border-t border-line">
+                    <button wire:click="closeEdit"
+                            class="rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Cancel</button>
+                    <button wire:click="saveEdit"
+                            class="rounded-sm bg-foreground px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

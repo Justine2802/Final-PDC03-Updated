@@ -90,6 +90,9 @@
                                                 class="text-xs text-green-600 hover:text-green-800 dark:text-green-400 font-medium transition-colors">Confirm</button>
                                         <button wire:click="askConfirm({{ $reservation->id }}, 'cancel')"
                                                 class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 font-medium transition-colors">Cancel</button>
+                                    @elseif($reservation->status === 'confirmed')
+                                        <button wire:click="askConfirm({{ $reservation->id }}, 'complete')"
+                                                class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 font-medium transition-colors">Complete</button>
                                     @endif
                                 </div>
                             </td>
@@ -171,6 +174,9 @@
                                 class="rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors">Confirm</button>
                         <button wire:click="askConfirm({{ $viewing->id }}, 'cancel')"
                                 class="rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">Cancel</button>
+                    @elseif($viewing->status === 'confirmed')
+                        <button wire:click="askConfirm({{ $viewing->id }}, 'complete')"
+                                class="rounded-sm bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">Complete</button>
                     @endif
                     <button wire:click="closeView"
                             class="rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Close</button>

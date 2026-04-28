@@ -20,7 +20,7 @@
         {{-- Toolbar --}}
         <div class="p-4 border-b border-line">
             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search property types..."
-                class="w-full sm:max-w-xs rounded-md border border-line bg-card px-3 py-2 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                class="w-full sm:max-w-xs rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
         </div>
 
         {{-- Table --}}
@@ -83,7 +83,7 @@
         <div class="p-4 border-t border-line flex items-center justify-between gap-4">
             <div class="flex items-center gap-2 text-sm text-dim">
                 <span>Rows per page:</span>
-                <select wire:model.live="perPage" class="rounded-md border border-line bg-card text-foreground text-sm py-1 px-2 focus:outline-none focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20">
+                <select wire:model.live="perPage" class="rounded-sm border border-line bg-page text-foreground text-sm py-1 px-2 focus:outline-none focus:ring-1 focus:ring-foreground">
                     <option value="5">5</option>
                     <option value="10">10</option>
                     <option value="25">25</option>
@@ -102,7 +102,7 @@
             <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showModal', false)"></div>
             <div class="relative w-full max-w-md rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
                 <div class="flex items-center justify-between p-4 border-b border-line">
-                    <h3 class="text-lg font-semibold text-foreground">{{ $editingId ? 'Edit Property Type' : 'Add Property Type' }}</h3>
+                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">{{ $editingId ? 'Edit Property Type' : 'Add Property Type' }}</h3>
                     <button wire:click="$set('showModal', false)" class="text-dim hover:text-foreground">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -110,19 +110,19 @@
 
                 <form wire:submit="save" class="p-4 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-foreground mb-1">Name <span class="text-red-500">*</span></label>
+                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Name <span class="text-red-500">*</span></label>
                         <input type="text" wire:model="name" placeholder="e.g. Apartment, House, Condo..."
-                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
                         @error('name') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2 border-t border-line">
                         <button type="button" wire:click="$set('showModal', false)"
-                            class="rounded-md border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
+                            class="rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
                             Cancel
                         </button>
                         <button type="submit" wire:loading.attr="disabled" wire:loading.class="opacity-50"
-                            class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
+                            class="rounded-sm bg-foreground px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
                             <span wire:loading.remove wire:target="save">{{ $editingId ? 'Update' : 'Create' }}</span>
                             <span wire:loading wire:target="save">Saving...</span>
                         </button>
@@ -141,15 +141,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                     </svg>
-                    <h3 class="text-lg font-semibold text-foreground mb-2">Delete Property Type</h3>
+                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">Delete Property Type</h3>
                     <p class="text-sm text-dim mb-6">Are you sure? Properties using this type may be affected.</p>
                     <div class="flex justify-center gap-3">
                         <button wire:click="$set('showDeleteModal', false)"
-                            class="rounded-md border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
+                            class="rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
                             Cancel
                         </button>
                         <button wire:click="delete" wire:loading.attr="disabled" wire:loading.class="opacity-50"
-                            class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
+                            class="rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
                             <span wire:loading.remove wire:target="delete">Delete</span>
                             <span wire:loading wire:target="delete">Deleting...</span>
                         </button>

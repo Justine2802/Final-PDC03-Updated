@@ -34,20 +34,20 @@
 
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open"
-                        class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
+                        class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-3 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         Export
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     <div x-show="open" @click.away="open = false" x-transition
-                        class="absolute right-0 mt-1 w-40 rounded-md border border-line bg-card shadow-lg z-50">
+                        class="absolute right-0 mt-1 w-40 rounded-sm border border-line bg-card z-50" style="box-shadow: var(--shadow-lg);">
                         <button wire:click="export" @click="open = false"
-                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-t-md">
+                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-t-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Export as CSV
                         </button>
                         <button wire:click="exportExcel" @click="open = false"
-                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-b-md border-t border-line">
+                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-b-sm border-t border-line">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Export as Excel
                         </button>
@@ -195,9 +195,9 @@
 
                 {{-- Header --}}
                 <div class="flex items-center justify-between p-4 border-b border-line shrink-0">
-                    <h3 class="text-lg font-semibold text-foreground">{{ $editingId ? 'Edit Property' : 'Add Property' }}</h3>
-                    <button wire:click="$set('showModal', false)" class="text-dim hover:text-foreground">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">{{ $editingId ? 'Edit Property' : 'Add Property' }}</h3>
+                    <button wire:click="$set('showModal', false)" class="text-dim hover:text-foreground transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
 
@@ -217,13 +217,13 @@
 
                         @foreach($steps as $num => $step)
                             <button wire:click="goToStep({{ $num }})" type="button"
-                                class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors text-left
-                                    {{ $currentStep === $num ? 'bg-primary/10 text-primary font-medium' : ($currentStep > $num ? 'text-foreground' : 'text-dim') }}
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm transition-colors text-left
+                                    {{ $currentStep === $num ? 'bg-foreground/5 text-foreground font-medium' : ($currentStep > $num ? 'text-foreground' : 'text-dim') }}
                                     hover:bg-subtle">
                                 @if($currentStep > $num)
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 @elseif($currentStep === $num)
-                                    <span class="flex items-center justify-center h-5 w-5 rounded-full bg-primary text-on-primary text-xs font-bold shrink-0">{{ $num }}</span>
+                                    <span class="flex items-center justify-center h-5 w-5 rounded-full bg-foreground text-on-primary text-xs font-bold shrink-0">{{ $num }}</span>
                                 @else
                                     <span class="flex items-center justify-center h-5 w-5 rounded-full border border-line text-dim text-xs shrink-0">{{ $num }}</span>
                                 @endif
@@ -237,33 +237,33 @@
                         {{-- Mobile Step Indicator --}}
                         <div class="sm:hidden flex items-center gap-2 mb-4">
                             @for($i = 1; $i <= $totalSteps; $i++)
-                                <div class="flex-1 h-1.5 rounded-full {{ $i <= $currentStep ? 'bg-primary' : 'bg-subtle' }}"></div>
+                                <div class="flex-1 h-1.5 rounded-full {{ $i <= $currentStep ? 'bg-foreground' : 'bg-subtle' }}"></div>
                             @endfor
                         </div>
 
                         {{-- Step 1: Property Type --}}
                         @if($currentStep === 1)
-                            <h2 class="text-xl font-bold text-foreground mb-6">Property Type</h2>
+                            <h2 class="text-lg font-semibold text-foreground font-serif tracking-tight mb-6">Property Type</h2>
 
                             <div class="space-y-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-1.5">Title <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Title <span class="text-red-500">*</span></label>
                                     <input type="text" wire:model="title" placeholder="Enter property title..."
-                                        class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                                        class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
                                     @error('title') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-2">Property Type <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-2 font-semibold">Property Type <span class="text-red-500">*</span></label>
                                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                         @foreach($propertyTypes as $type)
                                             <label @click="$wire.set('property_type_id', '{{ $type->id }}', false)"
-                                                class="flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-colors"
-                                                :class="$wire.property_type_id == '{{ $type->id }}' ? 'border-primary bg-primary/5' : 'border-line hover:border-dim'">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" :class="$wire.property_type_id == '{{ $type->id }}' ? 'text-primary' : 'text-dim'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                class="flex flex-col items-center gap-2 p-4 rounded-sm border-2 cursor-pointer transition-colors"
+                                                :class="$wire.property_type_id == '{{ $type->id }}' ? 'border-foreground bg-foreground/5' : 'border-line hover:border-dim'">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" :class="$wire.property_type_id == '{{ $type->id }}' ? 'text-foreground' : 'text-dim'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                                 </svg>
-                                                <span class="text-sm font-medium" :class="$wire.property_type_id == '{{ $type->id }}' ? 'text-primary' : 'text-foreground'">{{ $type->name }}</span>
+                                                <span class="text-sm font-medium" :class="$wire.property_type_id == '{{ $type->id }}' ? 'text-foreground' : 'text-dim'">{{ $type->name }}</span>
                                             </label>
                                         @endforeach
                                     </div>
@@ -271,15 +271,15 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-2">Status</label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-2 font-semibold">Status</label>
                                     <div class="flex gap-3">
                                         <button type="button" @click="$wire.set('status', true, false)"
-                                            class="flex-1 py-2.5 rounded-md border-2 text-sm font-medium transition-colors"
+                                            class="flex-1 py-2.5 rounded-sm border-2 text-sm font-medium transition-colors"
                                             :class="$wire.status ? 'border-green-500 bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'border-line text-dim hover:border-dim'">
                                             Active
                                         </button>
                                         <button type="button" @click="$wire.set('status', false, false)"
-                                            class="flex-1 py-2.5 rounded-md border-2 text-sm font-medium transition-colors"
+                                            class="flex-1 py-2.5 rounded-sm border-2 text-sm font-medium transition-colors"
                                             :class="!$wire.status ? 'border-red-500 bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' : 'border-line text-dim hover:border-dim'">
                                             Inactive
                                         </button>
@@ -290,14 +290,14 @@
 
                         {{-- Step 2: Location --}}
                         @if($currentStep === 2)
-                            <h2 class="text-xl font-bold text-foreground mb-6">Location</h2>
+                            <h2 class="text-lg font-semibold text-foreground font-serif tracking-tight mb-6">Location</h2>
 
                             <div class="space-y-5">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-foreground mb-1.5">Region <span class="text-red-500">*</span></label>
+                                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Region <span class="text-red-500">*</span></label>
                                         <select wire:model.live="region_id"
-                                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+                                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
                                             <option value="">Select Region</option>
                                             @foreach($regions as $region)
                                                 <option value="{{ $region->id }}">{{ $region->name }}</option>
@@ -307,9 +307,9 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-foreground mb-1.5">Province <span class="text-red-500">*</span></label>
+                                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Province <span class="text-red-500">*</span></label>
                                         <select wire:model.live="province_id" @disabled(!$region_id)
-                                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50 disabled:cursor-not-allowed">
                                             <option value="">{{ $region_id ? 'Select Province' : 'Select Region first' }}</option>
                                             @foreach($provinces as $province)
                                                 <option value="{{ $province->id }}">{{ $province->name }}</option>
@@ -321,9 +321,9 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-foreground mb-1.5">City / Municipality <span class="text-red-500">*</span></label>
+                                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">City / Municipality <span class="text-red-500">*</span></label>
                                         <select wire:model.live="city_id" @disabled(!$province_id)
-                                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50 disabled:cursor-not-allowed">
                                             <option value="">{{ $province_id ? 'Select City' : 'Select Province first' }}</option>
                                             @foreach($cities as $city)
                                                 <option value="{{ $city->id }}">{{ $city->name }}</option>
@@ -333,9 +333,9 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-foreground mb-1.5">Barangay <span class="text-red-500">*</span></label>
+                                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Barangay <span class="text-red-500">*</span></label>
                                         <select wire:model="barangay_id" @disabled(!$city_id)
-                                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50 disabled:cursor-not-allowed">
                                             <option value="">{{ $city_id ? 'Select Barangay' : 'Select City first' }}</option>
                                             @foreach($barangays as $barangay)
                                                 <option value="{{ $barangay->id }}">{{ $barangay->name }}</option>
@@ -347,16 +347,16 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div class="sm:col-span-2">
-                                        <label class="block text-sm font-medium text-foreground mb-1.5">Street Address</label>
+                                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Street Address</label>
                                         <input type="text" wire:model="street" placeholder="e.g. 123 Rizal Street..."
-                                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
                                         @error('street') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-foreground mb-1.5">Zip Code</label>
+                                        <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Zip Code</label>
                                         <input type="text" wire:model="zip_code" placeholder="e.g. 1000"
-                                            class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                                            class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
                                         @error('zip_code') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
@@ -365,16 +365,16 @@
 
                         {{-- Step 3: Photos --}}
                         @if($currentStep === 3)
-                            <h2 class="text-xl font-bold text-foreground mb-2">Photos</h2>
+                            <h2 class="text-lg font-semibold text-foreground font-serif tracking-tight mb-2">Photos</h2>
                             <p class="text-sm text-dim mb-6">Max file size: 5MB. Formats: jpeg, jpg, png, webp.</p>
 
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {{-- Existing photos (edit mode) --}}
                                 @foreach($existingPhotos as $idx => $photo)
-                                    <div class="relative group aspect-[4/3] rounded-lg overflow-hidden border border-line bg-subtle">
+                                    <div class="relative group aspect-[4/3] rounded-sm overflow-hidden border border-line bg-subtle">
                                         <img src="{{ asset('storage/' . $photo['path']) }}" class="w-full h-full object-cover" />
                                         @if($idx === 0)
-                                            <span class="absolute top-2 left-2 bg-primary text-on-primary text-xs font-medium px-2 py-0.5 rounded">Cover</span>
+                                            <span class="absolute top-2 left-2 bg-foreground text-on-primary text-xs font-medium px-2 py-0.5 rounded-sm">Cover</span>
                                         @endif
                                         <button type="button" wire:click="removeExistingPhoto({{ $photo['id'] }})"
                                             class="absolute top-2 right-2 h-7 w-7 flex items-center justify-center rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity">
@@ -385,10 +385,10 @@
 
                                 {{-- New uploaded photos --}}
                                 @foreach($photos as $idx => $photo)
-                                    <div class="relative group aspect-[4/3] rounded-lg overflow-hidden border border-line bg-subtle">
+                                    <div class="relative group aspect-[4/3] rounded-sm overflow-hidden border border-line bg-subtle">
                                         <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover" />
                                         @if(count($existingPhotos) === 0 && $idx === 0)
-                                            <span class="absolute top-2 left-2 bg-primary text-on-primary text-xs font-medium px-2 py-0.5 rounded">Cover</span>
+                                            <span class="absolute top-2 left-2 bg-foreground text-on-primary text-xs font-medium px-2 py-0.5 rounded-sm">Cover</span>
                                         @endif
                                         <button type="button" wire:click="removePhoto({{ $idx }})"
                                             class="absolute top-2 right-2 h-7 w-7 flex items-center justify-center rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity">
@@ -398,7 +398,7 @@
                                 @endforeach
 
                                 {{-- Upload button --}}
-                                <label class="aspect-[4/3] rounded-lg border-2 border-dashed border-line hover:border-dim bg-subtle/50 flex flex-col items-center justify-center cursor-pointer transition-colors">
+                                <label class="aspect-[4/3] rounded-sm border-2 border-dashed border-line hover:border-dim bg-subtle/50 flex flex-col items-center justify-center cursor-pointer transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-dim mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
                                     <span class="text-sm text-dim">Upload photos</span>
                                     <input type="file" wire:model="photos" multiple accept="image/*" class="hidden" />
@@ -414,30 +414,30 @@
 
                         {{-- Step 4: Property Details --}}
                         @if($currentStep === 4)
-                            <h2 class="text-xl font-bold text-foreground mb-6">Property Details</h2>
+                            <h2 class="text-lg font-semibold text-foreground font-serif tracking-tight mb-6">Property Details</h2>
 
                             <div class="space-y-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-1.5">Description <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Description <span class="text-red-500">*</span></label>
                                     <textarea wire:model="description" rows="4" placeholder="Describe the property..."
-                                        class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+                                        class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground"></textarea>
                                     @error('description') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-1.5">Area (sqm) <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Area (sqm) <span class="text-red-500">*</span></label>
                                     <input type="number" wire:model="area" placeholder="sq.m."
-                                        class="w-full sm:w-1/2 rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                                        class="w-full sm:w-1/2 rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
                                     @error('area') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-2">Bedrooms <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-2 font-semibold">Bedrooms <span class="text-red-500">*</span></label>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach(['0', '1', '2', '3', '4', '5'] as $val)
                                             <button type="button" @click="$wire.set('bedrooms', '{{ $val }}', false)"
-                                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md border-2 text-sm font-medium transition-colors"
-                                                :class="$wire.bedrooms === '{{ $val }}' ? 'border-primary bg-primary/10 text-primary' : 'border-line text-dim hover:border-dim'">
+                                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm border-2 text-sm font-medium transition-colors"
+                                                :class="$wire.bedrooms === '{{ $val }}' ? 'border-foreground bg-foreground/5 text-foreground' : 'border-line text-dim hover:border-dim'">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                                                 {{ $val === '0' ? 'Any' : $val }}
                                             </button>
@@ -447,12 +447,12 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-2">Bathrooms <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-2 font-semibold">Bathrooms <span class="text-red-500">*</span></label>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach(['0', '1', '2', '3', '4', '5'] as $val)
                                             <button type="button" @click="$wire.set('bathrooms', '{{ $val }}', false)"
-                                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md border-2 text-sm font-medium transition-colors"
-                                                :class="$wire.bathrooms === '{{ $val }}' ? 'border-primary bg-primary/10 text-primary' : 'border-line text-dim hover:border-dim'">
+                                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm border-2 text-sm font-medium transition-colors"
+                                                :class="$wire.bathrooms === '{{ $val }}' ? 'border-foreground bg-foreground/5 text-foreground' : 'border-line text-dim hover:border-dim'">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
                                                 {{ $val === '0' ? 'Any' : $val }}
                                             </button>
@@ -462,9 +462,9 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-1.5">Amenities</label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Amenities</label>
                                     <textarea wire:model="amenities" rows="2" placeholder="e.g. Pool, Gym, Parking, WiFi..."
-                                        class="w-full rounded-md border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+                                        class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground"></textarea>
                                     @error('amenities') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                             </div>
@@ -472,15 +472,15 @@
 
                         {{-- Step 5: Price --}}
                         @if($currentStep === 5)
-                            <h2 class="text-xl font-bold text-foreground mb-6">Price</h2>
+                            <h2 class="text-lg font-semibold text-foreground font-serif tracking-tight mb-6">Price</h2>
 
                             <div class="space-y-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-foreground mb-1.5">Price <span class="text-red-500">*</span></label>
+                                    <label class="block text-[10px] text-dim uppercase tracking-wider mb-1 font-semibold">Price <span class="text-red-500">*</span></label>
                                     <div class="relative w-full sm:w-1/2">
                                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-dim text-sm">&#8369;</span>
                                         <input type="number" step="0.01" wire:model="price" placeholder="Set a fair price"
-                                            class="w-full rounded-md border border-line bg-card pl-8 pr-3 py-2.5 text-sm text-foreground placeholder-dim focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                                            class="w-full rounded-sm border border-line bg-page pl-8 pr-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
                                     </div>
                                     @error('price') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
@@ -493,7 +493,7 @@
                 <div class="flex items-center justify-between p-4 border-t border-line shrink-0">
                     @if($currentStep > 1)
                         <button type="button" wire:click="prevStep"
-                            class="inline-flex items-center gap-1.5 rounded-md border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
+                            class="inline-flex items-center gap-1.5 rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                             Back
                         </button>
@@ -503,13 +503,13 @@
 
                     @if($currentStep < $totalSteps)
                         <button type="button" wire:click="nextStep"
-                            class="inline-flex items-center gap-1.5 rounded-md bg-primary px-5 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
+                            class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-5 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
                             Next
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                         </button>
                     @else
                         <button type="button" wire:click="save"
-                            class="inline-flex items-center gap-1.5 rounded-md bg-primary px-5 py-2 text-sm font-medium text-on-primary hover:bg-primary/90 transition-colors">
+                            class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-5 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                             {{ $editingId ? 'Update Property' : 'Create Property' }}
                         </button>
@@ -523,94 +523,119 @@
     @if($showViewModal && $viewProperty)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showViewModal', false)"></div>
-            <div class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
-                <div class="flex items-center justify-between p-4 border-b border-line">
-                    <h3 class="text-lg font-semibold text-foreground">Property Details</h3>
-                    <button wire:click="$set('showViewModal', false)" class="text-dim hover:text-foreground">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
+            <div class="relative w-full max-w-lg max-h-[90vh] overflow-hidden rounded-sm border border-line bg-card flex flex-col" style="box-shadow: var(--shadow-lg);">
+                {{-- Header --}}
+                <div class="flex items-center justify-between p-4 border-b border-line shrink-0">
+                    <div>
+                        <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">{{ $viewProperty->title }}</h3>
+                        <p class="text-[10px] text-dim mt-0.5">Created {{ $viewProperty->created_at->format('M d, Y') }}</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider {{ $viewProperty->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                        {{ $viewProperty->status ? 'Active' : 'Inactive' }}
+                    </span>
                 </div>
 
-                <div class="p-4 space-y-3">
+                {{-- Body --}}
+                <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                    {{-- Property Images --}}
+                    @if($viewProperty->images && $viewProperty->images->count() > 0)
+                        <div class="grid grid-cols-3 gap-2">
+                            @foreach($viewProperty->images->take(3) as $img)
+                                <div class="aspect-[4/3] rounded-sm overflow-hidden border border-line bg-subtle">
+                                    <img src="{{ asset('storage/' . $img->image_path) }}" class="w-full h-full object-cover" alt="" />
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Price & Key Stats --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-subtle/50 border border-line rounded-sm p-3">
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Price</span>
+                            <p class="text-lg font-semibold text-foreground">&#8369;{{ number_format($viewProperty->price, 2) }}</p>
+                        </div>
+                        <div class="bg-subtle/50 border border-line rounded-sm p-3">
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Area</span>
+                            <p class="text-lg font-semibold text-foreground">{{ $viewProperty->area }} <span class="text-sm font-normal text-dim">sqm</span></p>
+                        </div>
+                    </div>
+
+                    {{-- Details Grid --}}
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <div>
-                            <span class="block text-xs text-dim">Title</span>
-                            <span class="font-medium text-foreground">{{ $viewProperty->title }}</span>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Property Type</span>
+                            <span class="font-medium text-foreground">{{ $viewProperty->propertyType?->name ?? ('Type #' . $viewProperty->property_type_id) }}</span>
                         </div>
                         <div>
-                            <span class="block text-xs text-dim">Status</span>
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $viewProperty->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                {{ $viewProperty->status ? 'Active' : 'Inactive' }}
-                            </span>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Owner</span>
+                            <span class="font-medium text-foreground">{{ $viewProperty->user?->name ?? '—' }}</span>
                         </div>
                         <div>
-                            <span class="block text-xs text-dim">Price</span>
-                            <span class="text-foreground">&#8369;{{ number_format($viewProperty->price, 2) }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Area</span>
-                            <span class="text-foreground">{{ $viewProperty->area }} sqm</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Bedrooms</span>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Bedrooms</span>
                             <span class="text-foreground">{{ $viewProperty->bedrooms }}</span>
                         </div>
                         <div>
-                            <span class="block text-xs text-dim">Bathrooms</span>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Bathrooms</span>
                             <span class="text-foreground">{{ $viewProperty->bathrooms }}</span>
                         </div>
-                        <div>
-                            <span class="block text-xs text-dim">City</span>
-                            <span class="text-foreground">{{ $viewProperty->address?->barangay?->city?->name ?? '—' }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Province</span>
-                            <span class="text-foreground">{{ $viewProperty->address?->barangay?->city?->province?->name ?? '—' }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Zip Code</span>
-                            <span class="text-foreground">{{ $viewProperty->address?->zip_code ?? '—' }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Property Type</span>
-                            <span class="text-foreground">Type #{{ $viewProperty->property_type_id }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Region</span>
-                            <span class="text-foreground">{{ $viewProperty->address?->barangay?->city?->province?->region?->name ?? '—' }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Barangay</span>
-                            <span class="text-foreground">{{ $viewProperty->address?->barangay?->name ?? '—' }}</span>
-                        </div>
-                        <div class="col-span-2">
-                            <span class="block text-xs text-dim">Street Address</span>
-                            <span class="text-foreground">{{ $viewProperty->address?->street ?? '—' }}</span>
-                        </div>
-                        <div class="col-span-2">
-                            <span class="block text-xs text-dim">Description</span>
-                            <span class="text-foreground">{{ $viewProperty->description }}</span>
-                        </div>
-                        <div class="col-span-2">
-                            <span class="block text-xs text-dim">Amenities</span>
-                            <span class="text-foreground">{{ $viewProperty->amenities ?: '—' }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Owner</span>
-                            <span class="text-foreground">{{ $viewProperty->user?->name ?? '—' }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-xs text-dim">Created</span>
-                            <span class="text-foreground">{{ $viewProperty->created_at->format('M d, Y') }}</span>
+                    </div>
+
+                    {{-- Location Card --}}
+                    <div class="bg-subtle/50 border border-line rounded-sm p-3">
+                        <span class="block text-[10px] text-dim uppercase tracking-wider mb-2 font-semibold">Location</span>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Region</span>
+                                <span class="text-foreground">{{ $viewProperty->address?->barangay?->city?->province?->region?->name ?? '—' }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Province</span>
+                                <span class="text-foreground">{{ $viewProperty->address?->barangay?->city?->province?->name ?? '—' }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">City</span>
+                                <span class="text-foreground">{{ $viewProperty->address?->barangay?->city?->name ?? '—' }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Barangay</span>
+                                <span class="text-foreground">{{ $viewProperty->address?->barangay?->name ?? '—' }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Street</span>
+                                <span class="text-foreground">{{ $viewProperty->address?->street ?? '—' }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Zip Code</span>
+                                <span class="text-foreground">{{ $viewProperty->address?->zip_code ?? '—' }}</span>
+                            </div>
                         </div>
                     </div>
+
+                    {{-- Description --}}
+                    <div>
+                        <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Description</span>
+                        <p class="text-sm text-foreground bg-subtle/50 border border-line rounded-sm p-3">{{ $viewProperty->description }}</p>
+                    </div>
+
+                    {{-- Amenities --}}
+                    @if($viewProperty->amenities)
+                        <div>
+                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Amenities</span>
+                            <p class="text-sm text-foreground bg-subtle/50 border border-line rounded-sm p-3">{{ $viewProperty->amenities }}</p>
+                        </div>
+                    @endif
                 </div>
 
-                <div class="flex justify-end p-4 border-t border-line">
+                {{-- Footer --}}
+                <div class="flex items-center justify-between p-4 border-t border-line shrink-0">
+                    <div class="flex items-center gap-2">
+                        <button wire:click="edit({{ $viewProperty->id }})"
+                                class="rounded-sm bg-foreground px-3 py-1.5 text-xs font-medium text-on-primary hover:opacity-90 transition-all">Edit</button>
+                        <button wire:click="confirmDelete({{ $viewProperty->id }})"
+                                class="rounded-sm bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 transition-colors">Delete</button>
+                    </div>
                     <button wire:click="$set('showViewModal', false)"
-                        class="rounded-md border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
-                        Close
-                    </button>
+                            class="rounded-sm border border-line px-4 py-1.5 text-xs font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Close</button>
                 </div>
             </div>
         </div>
