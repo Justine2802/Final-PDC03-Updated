@@ -40,8 +40,24 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     })->name('admin.logout');
 });
 
-// Renter Routes
-Route::prefix('renter')->middleware(['auth', 'renter'])->group(function () {
+// Email Verification Routes (auth required, verified NOT required)
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', \App\Livewire\Auth\VerifyEmail::class)
+        ->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('renter.home');
+    })->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('status', 'verification-link-sent');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
+
+// Renter Routes (auth + verified email required)
+Route::prefix('renter')->middleware(['auth', 'renter', 'verified'])->group(function () {
     Route::get('/', \App\Livewire\Renter\Home::class)->name('renter.home');
     Route::get('/explore', \App\Livewire\Renter\Explore::class)->name('renter.explore');
     Route::get('/favorites', \App\Livewire\Renter\Favorites::class)->name('renter.favorites');
@@ -49,7 +65,7 @@ Route::prefix('renter')->middleware(['auth', 'renter'])->group(function () {
     Route::get('/reviews', \App\Livewire\Renter\MyReviews::class)->name('renter.reviews');
     Route::get('/profile', \App\Livewire\Renter\Profile::class)->name('renter.profile');
     Route::get('/inquiries', \App\Livewire\Renter\MyInquiries::class)->name('renter.inquiries');
-    
+
     // Settings
     Route::get('/settings', fn () => redirect()->route('renter.settings'))->name('renter.settings');
     Route::get('/settings/account', \App\Livewire\Renter\AccountSettings::class)->name('renter.settings.account');
