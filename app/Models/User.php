@@ -27,6 +27,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'role',
         'status',
+        'date_of_birth',
+        'full_address',
+        'address_line',
+        'province_id',
+        'city_id',
+        'barangay_id',
+        'id_type',
+        'id_number',
+        'id_image',
+        'id_verification_status',
+        'id_rejection_reason',
     ];
 
     /**
@@ -48,8 +59,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'date_of_birth'     => 'date',
+            'password'          => 'hashed',
         ];
+    }
+
+    public function hasCompletedProfile(): bool
+    {
+        return $this->id_verification_status !== 'none';
+    }
+
+    public function isProfileVerified(): bool
+    {
+        return $this->id_verification_status === 'verified';
     }
 
     /**

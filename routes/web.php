@@ -47,13 +47,32 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
         $request->fulfill();
-        return redirect()->route('renter.home');
+        // After email verified, prompt renter to complete their profile
+        return redirect()->route('profile.complete');
     })->middleware('signed')->name('verification.verify');
 
     Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('status', 'verification-link-sent');
     })->middleware('throttle:6,1')->name('verification.send');
+
+    // Profile completion & pending verification (auth + verified, before renter middleware)
+    Route::get('/profile/complete', \App\Livewire\Auth\CompleteProfile::class)
+        ->middleware('verified')
+        ->name('profile.complete');
+
+    Route::get('/profile/pending', \App\Livewire\Auth\PendingVerification::class)
+        ->middleware('verified')
+        ->name('profile.pending');
+
+    // General logout — reachable by any authenticated user regardless of role or
+    // verification status, so partially-verified renters can still sign out.
+    Route::post('/logout', function () {
+        auth()->logout();
+        session()->invalidate();
+        session()->regenerateToken();
+        return redirect()->route('login');
+    })->name('auth.logout');
 });
 
 // Renter Routes (auth + verified email required)

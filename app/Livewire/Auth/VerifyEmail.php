@@ -12,7 +12,7 @@ class VerifyEmail extends Component
     public function resend(): void
     {
         if (Auth::user()->hasVerifiedEmail()) {
-            $this->redirect(route('renter.home'));
+            $this->redirect(route('profile.complete'));
             return;
         }
 
@@ -30,9 +30,9 @@ class VerifyEmail extends Component
 
     public function render()
     {
-        // If already verified, send them home
+        // If already verified, send them to complete their profile
         if (Auth::user()?->hasVerifiedEmail()) {
-            return redirect()->route('renter.home');
+            return redirect()->route('profile.complete');
         }
 
         return view('livewire.auth.verify-email', [

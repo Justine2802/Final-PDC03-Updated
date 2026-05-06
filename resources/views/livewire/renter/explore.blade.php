@@ -6,40 +6,207 @@
             <p class="text-xs text-dim mt-1">Browse available rentals and find your perfect space.</p>
         </div>
 
-        {{-- Filters Bar --}}
-        <div class="border border-line bg-card rounded-sm" style="box-shadow: var(--shadow-xs);">
-            <div class="p-5 space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    <input type="text" wire:model.live="search" placeholder="Search..." 
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    
-                    <select wire:model.live="propertyType" class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                        <option value="">All Types</option>
-                        @foreach($propertyTypes as $type)
-                            <option value="{{ $type->id }}">{{ $type->name }}</option>
-                        @endforeach
-                    </select>
+        {{-- Slider CSS --}}
+        <style>
+            .range-slider {
+                -webkit-appearance: none; appearance: none;
+                height: 4px; border-radius: 9999px;
+                outline: none; cursor: pointer;
+            }
+            /* Min slider — fills left side (at-least) */
+            .range-slider--min {
+                background: linear-gradient(to right, var(--c-text, #18181b) var(--pct, 0%), var(--c-border, #e4e4e7) var(--pct, 0%));
+            }
+            /* Max slider — fills right side (at-most) */
+            .range-slider--max {
+                background: linear-gradient(to left, var(--c-text, #18181b) var(--pct2, 0%), var(--c-border, #e4e4e7) var(--pct2, 0%));
+            }
+            .range-slider::-webkit-slider-thumb {
+                -webkit-appearance: none; appearance: none;
+                width: 17px; height: 17px; border-radius: 50%;
+                background: var(--c-text, #18181b);
+                border: 2px solid var(--c-page, #fff);
+                box-shadow: 0 1px 4px rgba(0,0,0,.22);
+                cursor: grab; transition: transform .1s;
+            }
+            .range-slider::-webkit-slider-thumb:active { transform: scale(1.15); cursor: grabbing; }
+            .range-slider::-moz-range-thumb {
+                width: 17px; height: 17px; border-radius: 50%;
+                background: var(--c-text, #18181b);
+                border: 2px solid var(--c-page, #fff);
+                box-shadow: 0 1px 4px rgba(0,0,0,.22);
+                cursor: grab;
+            }
+        </style>
 
-                    <input type="number" wire:model.live="minPrice" placeholder="Min ₱" 
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    
-                    <input type="number" wire:model.live="maxPrice" placeholder="Max ₱" 
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+        {{-- Filters Bar — single Alpine scope owns ALL local filter state --}}
+        <div
+            x-data="{
+                showFilters:  false,
+                search:       '{{ addslashes($search) }}',
+                propType:     '{{ $propertyType }}',
+                dbMax:        {{ $dbMaxPrice }},
+                maxPrice:     {{ $maxPrice !== '' && is_numeric($maxPrice) ? (int)$maxPrice : $dbMaxPrice }},
+                minBedrooms:  {{ (int)$minBedrooms }},
+                minBathrooms: {{ (int)$minBathrooms }},
+                get hasFilters() {
+                    return this.search !== '' || this.propType !== '' ||
+                           this.maxPrice < this.dbMax ||
+                           this.minBedrooms !== 0 || this.minBathrooms !== 0;
+                },
+                get advFilterCount() {
+                    let n = 0;
+                    if (this.maxPrice < this.dbMax) n++;
+                    if (this.minBedrooms !== 0)     n++;
+                    if (this.minBathrooms !== 0)    n++;
+                    return n;
+                },
+                apply() {
+                    $wire.applyFilters(
+                        this.search,
+                        this.propType,
+                        String(this.maxPrice),
+                        String(this.minBedrooms),
+                        String(this.minBathrooms)
+                    );
+                },
+                reset() {
+                    this.search = ''; this.propType = '';
+                    this.maxPrice = this.dbMax;
+                    this.minBedrooms = 0; this.minBathrooms = 0;
+                    $wire.resetFilters();
+                }
+            }"
+            class="border border-line bg-card rounded-sm" style="box-shadow: var(--shadow-xs);">
 
-                    <button wire:click="resetFilters" class="rounded-sm bg-foreground text-on-primary px-3 py-2 text-sm font-medium hover:opacity-90 transition-all">
-                        Reset
+            {{-- Always-visible row --}}
+            <div class="p-4 flex flex-col sm:flex-row gap-3">
+                {{-- Search input + button --}}
+                <div class="relative flex-1 flex gap-2">
+                    <div class="relative flex-1">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dim pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" x-model="search"
+                            @keydown.enter="apply()"
+                            placeholder="Search properties…"
+                            class="w-full pl-9 pr-3 py-2 rounded-sm border border-line bg-page text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                    </div>
+                    <button @click="apply()"
+                        class="inline-flex items-center gap-1.5 rounded-sm bg-foreground text-on-primary px-4 py-2 text-sm font-medium hover:opacity-90 transition-all shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Search
                     </button>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <input type="number" wire:model.live="minBedrooms" placeholder="Min Bed" min="0"
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    <input type="number" wire:model.live="maxBedrooms" placeholder="Max Bed" min="0"
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    <input type="number" wire:model.live="minBathrooms" placeholder="Min Bath" min="0"
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    <input type="number" wire:model.live="maxBathrooms" placeholder="Max Bath" min="0"
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                {{-- Property type (local Alpine, applied on Search) --}}
+                <select x-model="propType"
+                    class="sm:w-44 rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                    <option value="">All Types</option>
+                    @foreach($propertyTypes as $type)
+                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                    @endforeach
+                </select>
+
+                {{-- Advanced filter toggle with live badge --}}
+                <button @click="showFilters = !showFilters"
+                    class="inline-flex items-center gap-1.5 rounded-sm border border-line px-3 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="showFilters ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                    Filters
+                    <span x-show="advFilterCount > 0"
+                        x-text="advFilterCount"
+                        class="inline-flex items-center justify-center h-4 min-w-[1rem] rounded-full bg-foreground text-on-primary text-[10px] font-semibold px-1">
+                    </span>
+                </button>
+
+                {{-- Reset — visible when anything is active --}}
+                <button x-show="hasFilters" @click="reset()"
+                    class="inline-flex items-center gap-1.5 rounded-sm border border-line px-3 py-2 text-sm font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Reset
+                </button>
+            </div>
+
+            {{-- Collapsible slider panel --}}
+            <div x-show="showFilters" x-cloak
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 class="border-t border-line p-5 bg-subtle/20">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+                    {{-- ── Max Price ──────────────────────────────────── --}}
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[10px] font-semibold text-dim uppercase tracking-wider">Max Price / Month</span>
+                            <span class="text-xs font-semibold text-foreground tabular-nums">
+                                Up to ₱<span x-text="maxPrice.toLocaleString()"></span>
+                            </span>
+                        </div>
+                        <input type="range" min="0" :max="dbMax" step="500" :value="maxPrice"
+                            @input="maxPrice = parseInt($event.target.value)"
+                            class="range-slider range-slider--min w-full min-w-0"
+                            :style="`--pct: ${(maxPrice / dbMax) * 100}%`">
+                        <div class="flex justify-between mt-2 text-[10px] text-dim/60">
+                            <span>₱0</span>
+                            <span>₱<span x-text="dbMax.toLocaleString()"></span></span>
+                        </div>
+                    </div>
+
+                    {{-- ── Min Bedrooms ────────────────────────────────── --}}
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[10px] font-semibold text-dim uppercase tracking-wider">Min Bedrooms</span>
+                            <span class="text-xs font-semibold text-foreground">
+                                <span x-text="minBedrooms === 0 ? 'Any' : minBedrooms + '+ beds'"></span>
+                            </span>
+                        </div>
+                        <input type="range" min="0" max="10" step="1" :value="minBedrooms"
+                            @input="minBedrooms = parseInt($event.target.value)"
+                            class="range-slider range-slider--min w-full min-w-0"
+                            :style="`--pct: ${(minBedrooms / 10) * 100}%`">
+                        <div class="flex justify-between mt-2 text-[10px] text-dim/60">
+                            <span>Any</span><span>10 beds</span>
+                        </div>
+                    </div>
+
+                    {{-- ── Min Bathrooms ───────────────────────────────── --}}
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[10px] font-semibold text-dim uppercase tracking-wider">Min Bathrooms</span>
+                            <span class="text-xs font-semibold text-foreground">
+                                <span x-text="minBathrooms === 0 ? 'Any' : minBathrooms + '+ baths'"></span>
+                            </span>
+                        </div>
+                        <input type="range" min="0" max="10" step="1" :value="minBathrooms"
+                            @input="minBathrooms = parseInt($event.target.value)"
+                            class="range-slider range-slider--min w-full min-w-0"
+                            :style="`--pct: ${(minBathrooms / 10) * 100}%`">
+                        <div class="flex justify-between mt-2 text-[10px] text-dim/60">
+                            <span>Any</span><span>10 baths</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- Apply button inside the panel --}}
+                <div class="flex justify-end mt-5 pt-4 border-t border-line">
+                    <button @click="apply()"
+                        class="inline-flex items-center gap-1.5 rounded-sm bg-foreground text-on-primary px-5 py-2 text-sm font-medium hover:opacity-90 transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Apply Filters
+                    </button>
                 </div>
             </div>
         </div>

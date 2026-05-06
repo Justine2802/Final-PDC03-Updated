@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Engagement&display=swap" rel="stylesheet">
 
     <script>
         (function() {
@@ -34,14 +34,12 @@
             <div class="max-w-[1400px] mx-auto flex items-center h-14 px-5 lg:px-8">
 
                 {{-- Brand (left) --}}
-                <a href="{{ route('admin.dashboard') }}" wire:navigate class="flex items-center gap-2.5 shrink-0 group">
-                    <div class="w-7 h-7 flex items-center justify-center rounded-sm bg-foreground group-hover:opacity-90 transition-opacity">
-                        <span class="text-xs font-bold text-on-primary font-serif tracking-tight">{{ strtoupper(substr(config('app.name'), 0, 1)) }}</span>
-                    </div>
+                <a href="{{ route('admin.dashboard') }}" wire:navigate class="shrink-0 group">
                     <div class="hidden sm:block">
-                        <p class="text-sm font-semibold text-foreground tracking-tight font-serif leading-none">{{ config('app.name') }}</p>
+                        <p class="text-xl font-normal text-foreground leading-none" style="font-family: 'Engagement', cursive;">{{ config('app.name') }}</p>
                         <p class="text-[8px] uppercase tracking-[0.15em] text-dim mt-0.5">Admin Console</p>
                     </div>
+                    <p class="sm:hidden text-xl font-normal text-foreground" style="font-family: 'Engagement', cursive;">{{ config('app.name') }}</p>
                 </a>
 
                 {{-- Spacer pushes everything to the right --}}
