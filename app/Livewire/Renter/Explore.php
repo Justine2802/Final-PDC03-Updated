@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Renter;
 
+use App\Models\Favorite;
 use App\Models\Property;
 use App\Models\PropertyType;
-use App\Models\Reservation;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,172 +12,104 @@ class Explore extends Component
 {
     use WithPagination;
 
-    public string $search = '';
+    public string $search       = '';
     public string $propertyType = '';
-    public float $minPrice = 0;
-    public float $maxPrice = 1000000;
-    public int $minBedrooms = 0;
-    public int $maxBedrooms = 10;
-    public int $minBathrooms = 0;
-    public int $maxBathrooms = 10;
-    public ?int $selectedPropertyId = null;
+    public string $maxPrice     = '';   // '' = no price cap (show all)
+    public string $minBedrooms  = '0';
+    public string $minBathrooms = '0';
 
-    // Reservation form fields
-    public bool $showReservationForm = false;
-    public string $moveInDate = '';
-    public string $moveOutDate = '';
-    public string $reservationNotes = '';
 
-    protected $queryString = [
-        'search'       => ['except' => ''],
-        'propertyType' => ['except' => ''],
-        'minPrice'     => ['except' => 0],
-        'maxPrice'     => ['except' => 1000000],
-    ];
-
-    protected function rules(): array
-    {
-        return [
-            'moveInDate'        => 'required|date|after_or_equal:today',
-            'moveOutDate'       => 'nullable|date|after:moveInDate',
-            'reservationNotes'  => 'nullable|max:500',
-        ];
-    }
-
-    protected $messages = [
-        'moveInDate.required'       => 'Move-in date is required.',
-        'moveInDate.after_or_equal' => 'Move-in date must be today or in the future.',
-        'moveOutDate.after'         => 'Move-out date must be after the move-in date.',
-    ];
-
-    public function showPropertyDetail($propertyId): void
-    {
-        $this->selectedPropertyId = $propertyId;
-        $this->showReservationForm = false;
-        $this->resetReservationForm();
-    }
-
-    public function closePropertyDetail(): void
-    {
-        $this->selectedPropertyId = null;
-        $this->showReservationForm = false;
-        $this->resetReservationForm();
-    }
-
-    public function openReservationForm(): void
-    {
-        $this->showReservationForm = true;
-    }
-
-    public function closeReservationForm(): void
-    {
-        $this->showReservationForm = false;
-        $this->resetReservationForm();
-    }
-
-    public function submitReservation(): void
-    {
-        $this->validate();
-
-        $property = Property::find($this->selectedPropertyId);
-        if (!$property) {
-            $this->dispatch('notify', message: 'Property not found.');
-            return;
-        }
-
-        // Calculate total price based on months if move-out date provided
-        $moveIn  = \Carbon\Carbon::parse($this->moveInDate);
-        $moveOut = $this->moveOutDate ? \Carbon\Carbon::parse($this->moveOutDate) : null;
-        $months  = $moveOut ? max(1, (int) $moveIn->diffInMonths($moveOut)) : 1;
-        $total   = $property->price * $months;
-
-        Reservation::create([
-            'user_id'      => auth()->id(),
-            'property_id'  => $this->selectedPropertyId,
-            'move_in_date' => $this->moveInDate,
-            'move_out_date'=> $this->moveOutDate ?: null,
-            'total_price'  => $total,
-            'status'       => 'pending',
-            'notes'        => $this->reservationNotes ?: null,
-        ]);
-
-        $this->dispatch('notify', message: 'Reservation submitted! Awaiting confirmation.');
-        $this->closePropertyDetail();
-    }
-
-    private function resetReservationForm(): void
-    {
-        $this->moveInDate        = '';
-        $this->moveOutDate       = '';
-        $this->reservationNotes  = '';
-        $this->resetValidation();
-    }
-
-    public function addToFavorites($propertyId): void
-    {
-        $exists = \App\Models\Favorite::where('user_id', auth()->id())
-            ->where('property_id', $propertyId)
-            ->exists();
-
-        if (!$exists) {
-            \App\Models\Favorite::create([
-                'user_id'     => auth()->id(),
-                'property_id' => $propertyId,
-            ]);
-            $this->dispatch('notify', message: 'Added to favorites');
-        } else {
-            \App\Models\Favorite::where('user_id', auth()->id())
-                ->where('property_id', $propertyId)
-                ->delete();
-            $this->dispatch('notify', message: 'Removed from favorites');
-        }
-    }
-
-    public function sendInquiry($propertyId): void
-    {
-        $this->redirect(route('renter.home') . '?propertyId=' . $propertyId);
+    public function applyFilters(
+        string $search,
+        string $propertyType,
+        string $maxPrice,
+        string $minBedrooms,
+        string $minBathrooms
+    ): void {
+        $this->search       = $search;
+        $this->propertyType = $propertyType;
+        $this->maxPrice     = $maxPrice;
+        $this->minBedrooms  = $minBedrooms;
+        $this->minBathrooms = $minBathrooms;
+        $this->resetPage();
     }
 
     public function resetFilters(): void
     {
-        $this->reset(['search', 'propertyType', 'minPrice', 'maxPrice', 'minBedrooms', 'maxBedrooms', 'minBathrooms', 'maxBathrooms']);
+        $this->search       = '';
+        $this->propertyType = '';
+        $this->maxPrice     = '';
+        $this->minBedrooms  = '0';
+        $this->minBathrooms = '0';
         $this->resetPage();
     }
 
+    public function viewProperty(int $id): void
+    {
+        $this->redirect(route('renter.property', $id));
+    }
+
+    public function addToFavorites(int $propertyId): void
+    {
+        $exists = Favorite::where('user_id', auth()->id())
+            ->where('property_id', $propertyId)
+            ->exists();
+
+        if ($exists) {
+            Favorite::where('user_id', auth()->id())->where('property_id', $propertyId)->delete();
+            $this->dispatch('notify', message: 'Removed from favourites.');
+        } else {
+            Favorite::create(['user_id' => auth()->id(), 'property_id' => $propertyId]);
+            $this->dispatch('notify', message: 'Added to favourites.');
+        }
+    }
+
+
     public function render()
     {
+        // Max price ceiling from the actual data
+        $dbMaxPrice = (int) (Property::where('status', true)->max('price') ?? 10000);
+        // Round up to a clean number for the slider
+        $dbMaxPrice = (int) (ceil($dbMaxPrice / 1000) * 1000);
+
+        $maxPrice  = $this->maxPrice !== '' && is_numeric($this->maxPrice)
+            ? (float) $this->maxPrice
+            : $dbMaxPrice;
+        $minBeds   = is_numeric($this->minBedrooms)  ? (int) $this->minBedrooms  : 0;
+        $minBaths  = is_numeric($this->minBathrooms) ? (int) $this->minBathrooms : 0;
+
         $query = Property::where('status', true);
 
         if ($this->search) {
-            $query->where('title', 'like', "%{$this->search}%")
-                ->orWhere('description', 'like', "%{$this->search}%");
+            $query->where(fn ($q) => $q
+                ->where('title', 'like', "%{$this->search}%")
+                ->orWhere('description', 'like', "%{$this->search}%"));
         }
 
         if ($this->propertyType) {
             $query->where('property_type_id', $this->propertyType);
         }
 
-        $query->whereBetween('price', [$this->minPrice, $this->maxPrice])
-            ->whereBetween('bedrooms', [$this->minBedrooms, $this->maxBedrooms])
-            ->whereBetween('bathrooms', [$this->minBathrooms, $this->maxBathrooms]);
+        $query->where('price', '<=', $maxPrice);
 
-        $properties    = $query->with(['propertyType', 'images', 'user'])->paginate(12);
-        $propertyTypes = PropertyType::all();
-
-        $selectedProperty = null;
-        if ($this->selectedPropertyId) {
-            $selectedProperty = Property::with(['images', 'propertyType', 'address'])->find($this->selectedPropertyId);
+        if ($minBeds > 0) {
+            $query->where('bedrooms', '>=', $minBeds);
+        }
+        if ($minBaths > 0) {
+            $query->where('bathrooms', '>=', $minBaths);
         }
 
-        $favoriteIds = \App\Models\Favorite::where('user_id', auth()->id())
-            ->pluck('property_id')
-            ->toArray();
+        $activeFilterCount =
+            ($this->maxPrice !== '' && (float)$this->maxPrice < $dbMaxPrice ? 1 : 0) +
+            ($minBeds > 0 ? 1 : 0) +
+            ($minBaths > 0 ? 1 : 0);
 
         return view('livewire.renter.explore', [
-            'properties'       => $properties,
-            'propertyTypes'    => $propertyTypes,
-            'selectedProperty' => $selectedProperty,
-            'favoriteIds'      => $favoriteIds,
+            'properties'        => $query->with(['propertyType', 'images', 'user', 'reviews'])->paginate(12),
+            'propertyTypes'     => PropertyType::all(),
+            'favoriteIds'       => Favorite::where('user_id', auth()->id())->pluck('property_id')->toArray(),
+            'activeFilterCount' => $activeFilterCount,
+            'dbMaxPrice'        => $dbMaxPrice,
         ])->layout('components.layouts.renter')->title('Explore Properties');
     }
 }

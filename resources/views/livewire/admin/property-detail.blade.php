@@ -1,218 +1,400 @@
 <div>
     <x-slot:header>
-        <span class="font-medium text-foreground">Properties</span>
+        <a href="{{ route('admin.properties') }}" wire:navigate class="text-dim hover:text-foreground transition-colors">Properties</a>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+        <span class="font-medium text-foreground truncate max-w-xs">{{ $property->title }}</span>
     </x-slot:header>
 
-    {{-- Page Header --}}
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-xl font-semibold text-foreground font-serif tracking-tight">Properties</h1>
-            <p class="text-xs text-dim mt-1">Manage all listed properties.</p>
-        </div>
-        <button wire:click="create"
-            class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all" style="box-shadow: var(--shadow-xs);">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-            Add Property
-        </button>
+    {{-- Page header --}}
+    <div class="mb-5">
+        <a href="{{ route('admin.properties') }}" wire:navigate
+            class="inline-flex items-center gap-1.5 text-sm text-dim hover:text-foreground transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Properties
+        </a>
     </div>
 
-    <div class="rounded-sm border border-line bg-card" x-data="{ showFilters: false }" style="box-shadow: var(--shadow-xs);">
-        {{-- Toolbar --}}
-        <div class="p-4 border-b border-line flex flex-col sm:flex-row sm:items-center gap-3">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search properties..."
-                class="w-full sm:max-w-xs rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
-
-            <div class="flex items-center gap-2 sm:ml-auto">
-                <button @click="showFilters = !showFilters"
-                    class="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                    Filters
-                    @if($activeFilterCount > 0)
-                        <span class="inline-flex items-center justify-center h-4 min-w-[1rem] rounded-sm bg-foreground text-on-primary text-[10px] font-semibold px-1">{{ $activeFilterCount }}</span>
-                    @endif
-                </button>
-
-                <div x-data="{ open: false }" class="relative">
-                    <button @click="open = !open"
-                        class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-3 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        Export
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div x-show="open" @click.away="open = false" x-transition
-                        class="absolute right-0 mt-1 w-40 rounded-sm border border-line bg-card z-50" style="box-shadow: var(--shadow-lg);">
-                        <button wire:click="export" @click="open = false"
-                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-t-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            Export as CSV
-                        </button>
-                        <button wire:click="exportExcel" @click="open = false"
-                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-b-sm border-t border-line">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            Export as Excel
-                        </button>
-                    </div>
-                </div>
+    <div class="flex items-start justify-between mb-6 gap-4">
+        <div>
+            <div class="flex flex-wrap items-center gap-3">
+                <h1 class="text-2xl font-semibold text-foreground font-serif tracking-tight">{{ $property->title }}</h1>
+                <span class="inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider
+                    {{ $property->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                    {{ $property->status ? 'Active' : 'Inactive' }}
+                </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 mt-1 text-sm text-dim">
+                <span class="font-medium text-accent uppercase tracking-wider text-[10px]">{{ $property->propertyType->name ?? 'Property' }}</span>
+                @php
+                    $hdrBrgy = $property->address?->barangay;
+                    $hdrCity = $hdrBrgy?->city;
+                @endphp
+                @if($hdrCity)
+                    <span class="text-dim/40">·</span>
+                    <span>{{ $hdrCity->name }}, {{ $hdrCity->province?->name }}</span>
+                @endif
+                <span class="text-dim/40">·</span>
+                <span>Created {{ $property->created_at->format('M d, Y') }}</span>
+                <span class="text-dim/40">·</span>
+                <span>Owned by <strong class="font-medium text-foreground">{{ $property->user->name ?? 'Unknown' }}</strong></span>
             </div>
         </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <button wire:click="openEdit"
+                class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-3 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>
+                </svg>
+                Edit
+            </button>
+            <button wire:click="$set('showDeleteConfirm', true)"
+                class="inline-flex items-center gap-1.5 rounded-sm border border-red-200 dark:border-red-500/30 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                </svg>
+                Delete
+            </button>
+        </div>
+    </div>
 
-        {{-- Filters Panel --}}
-            <div x-show="showFilters" x-cloak class="p-4 border-b border-line bg-subtle/50">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-dim mb-1">Status</label>
-                        <select wire:model.live="filterStatus"
-                            class="w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                            <option value="">All Statuses</option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-dim mb-1">City</label>
-                        <select wire:model.live="filterCity"
-                            class="w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                            <option value="">All Cities</option>
-                            @foreach($allCities as $city)
-                                <option value="{{ $city->id }}">{{ $city->name }}, {{ $city->province?->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-dim mb-1">Property Type</label>
-                        <select wire:model.live="filterType"
-                            class="w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                            <option value="">All Types</option>
-                            @foreach($propertyTypes as $type)
-                                <option value="{{ $type->id }}">Type #{{ $type->id }}</option>
-                            @endforeach
-                        </select>
+    {{-- Image gallery --}}
+    @php
+        $images    = $property->images;
+        $imageUrls = $images->map(fn($i) => asset('storage/' . $i->image_path))->values()->toArray();
+        $imageCount = count($imageUrls);
+    @endphp
+    <div class="mb-8 rounded-sm overflow-hidden"
+         x-data="{
+             images: {{ json_encode($imageUrls) }},
+             lightboxOpen: false,
+             lightboxIndex: 0,
+             open(index) { this.lightboxIndex = index; this.lightboxOpen = true; },
+             close() { this.lightboxOpen = false; },
+             prev() { this.lightboxIndex = (this.lightboxIndex - 1 + this.images.length) % this.images.length; },
+             next() { this.lightboxIndex = (this.lightboxIndex + 1) % this.images.length; }
+         }"
+         @keydown.escape.window="close()"
+         @keydown.arrow-left.window="lightboxOpen && prev()"
+         @keydown.arrow-right.window="lightboxOpen && next()">
+
+        @if($imageCount > 0)
+            @if($imageCount === 1)
+                <div class="h-80 lg:h-[440px]">
+                    <button @click="open(0)" class="w-full h-full relative group overflow-hidden bg-subtle block">
+                        <img src="{{ $imageUrls[0] }}" alt="{{ $property->title }}"
+                             class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                        <div class="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded">1 photo</div>
+                    </button>
+                </div>
+            @elseif($imageCount === 2)
+                <div class="grid grid-cols-2 gap-1.5 h-80 lg:h-[440px]">
+                    @foreach($imageUrls as $idx => $url)
+                        <button @click="open({{ $idx }})" class="relative group overflow-hidden bg-subtle">
+                            <img src="{{ $url }}" alt="Property photo"
+                                 class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                        </button>
+                    @endforeach
+                </div>
+            @elseif($imageCount === 3)
+                <div class="grid grid-cols-3 gap-1.5 h-80 lg:h-[440px]">
+                    <button @click="open(0)" class="col-span-2 relative group overflow-hidden bg-subtle">
+                        <img src="{{ $imageUrls[0] }}" alt="{{ $property->title }}"
+                             class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                    </button>
+                    <div class="grid grid-rows-2 gap-1.5">
+                        @foreach(array_slice($imageUrls, 1, 2) as $idx => $url)
+                            <button @click="open({{ $idx + 1 }})" class="relative group overflow-hidden bg-subtle">
+                                <img src="{{ $url }}" alt="Property photo"
+                                     class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                            </button>
+                        @endforeach
                     </div>
                 </div>
-                @if($activeFilterCount > 0)
-                    <div class="mt-3">
-                        <button wire:click="resetFilters" class="text-sm text-dim hover:text-foreground underline underline-offset-2">
-                            Clear all filters
+            @elseif($imageCount === 4)
+                <div class="grid grid-cols-3 gap-1.5 h-80 lg:h-[440px]">
+                    <button @click="open(0)" class="col-span-2 relative group overflow-hidden bg-subtle">
+                        <img src="{{ $imageUrls[0] }}" alt="{{ $property->title }}"
+                             class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                    </button>
+                    <div class="grid grid-rows-3 gap-1.5">
+                        @foreach(array_slice($imageUrls, 1, 3) as $idx => $url)
+                            <button @click="open({{ $idx + 1 }})" class="relative group overflow-hidden bg-subtle">
+                                <img src="{{ $url }}" alt="Property photo"
+                                     class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @else
+                <div class="grid grid-cols-4 grid-rows-2 gap-1.5 h-80 lg:h-[440px]">
+                    <button @click="open(0)" class="col-span-2 row-span-2 relative group overflow-hidden bg-subtle">
+                        <img src="{{ $imageUrls[0] }}" alt="{{ $property->title }}"
+                             class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                    </button>
+                    @foreach(array_slice($imageUrls, 1, 4) as $idx => $url)
+                        <button @click="open({{ $idx + 1 }})" class="relative group overflow-hidden bg-subtle">
+                            @if($idx === 3 && $imageCount > 5)
+                                <img src="{{ $url }}" alt="Property photo"
+                                     class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300 brightness-50">
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <span class="text-white text-sm font-semibold">+{{ $imageCount - 4 }} more</span>
+                                </div>
+                            @else
+                                <img src="{{ $url }}" alt="Property photo"
+                                     class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                            @endif
                         </button>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Lightbox --}}
+            <div x-show="lightboxOpen" x-cloak
+                class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0">
+
+                <button @click="close()" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                <div class="absolute top-4 left-1/2 -translate-x-1/2 text-white/70 text-sm select-none">
+                    <span x-text="lightboxIndex + 1"></span> / <span x-text="images.length"></span>
+                </div>
+                <button @click="prev()" x-show="images.length > 1"
+                    class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="w-full h-full flex items-center justify-center p-16">
+                    <img :src="images[lightboxIndex]" class="max-h-full max-w-full rounded object-contain select-none">
+                </div>
+                <button @click="next()" x-show="images.length > 1"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                @if($imageCount > 1)
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto pb-1">
+                        @foreach($imageUrls as $idx => $url)
+                            <button @click="lightboxIndex = {{ $idx }}"
+                                class="w-14 h-10 flex-shrink-0 rounded overflow-hidden border-2 transition-colors"
+                                :class="lightboxIndex === {{ $idx }} ? 'border-white' : 'border-transparent opacity-60 hover:opacity-90'">
+                                <img src="{{ $url }}" class="w-full h-full object-cover">
+                            </button>
+                        @endforeach
                     </div>
                 @endif
             </div>
+        @else
+            <div class="h-64 lg:h-80 bg-subtle rounded-sm flex items-center justify-center">
+                <svg class="w-16 h-16 text-dim/20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        @endif
+    </div>
 
-        {{-- Table --}}
-        <div class="overflow-x-auto transition-opacity duration-200" wire:loading.class="opacity-50 pointer-events-none">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-line bg-subtle/50">
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
-                            <button wire:click="sortBy('id')" class="inline-flex items-center gap-1 hover:text-foreground">
-                                ID
-                                @if($sortBy === 'id')
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" /></svg>
-                                @endif
-                            </button>
-                        </th>
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
-                            <button wire:click="sortBy('title')" class="inline-flex items-center gap-1 hover:text-foreground">
-                                Title
-                                @if($sortBy === 'title')
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" /></svg>
-                                @endif
-                            </button>
-                        </th>
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
-                            <button wire:click="sortBy('price')" class="inline-flex items-center gap-1 hover:text-foreground">
-                                Price
-                                @if($sortBy === 'price')
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" /></svg>
-                                @endif
-                            </button>
-                        </th>
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">City</th>
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Status</th>
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">
-                            <button wire:click="sortBy('created_at')" class="inline-flex items-center gap-1 hover:text-foreground">
-                                Created
-                                @if($sortBy === 'created_at')
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" /></svg>
-                                @endif
-                            </button>
-                        </th>
-                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @forelse($properties as $property)
-                        <tr class="hover:bg-subtle transition-colors">
-                            <td class="px-4 py-3 text-dim">{{ $property->id }}</td>
-                            <td class="px-4 py-3">
-                                <div class="flex items-center gap-3">
-                                    @php $cover = $property->images->first(); @endphp
-                                    @if($cover)
-                                        <img src="{{ asset('storage/' . $cover->image_path) }}"
-                                             alt="{{ $property->title }}"
-                                             class="w-12 h-10 object-cover rounded flex-shrink-0">
-                                    @else
-                                        <div class="w-12 h-10 flex-shrink-0 rounded bg-subtle flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-dim/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                    <span class="font-medium text-foreground">{{ $property->title }}</span>
+    {{-- Main content: info left + details right --}}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
+
+        {{-- Left: property info --}}
+        <div class="space-y-8">
+
+            {{-- Key stats --}}
+            <div class="flex flex-wrap items-center gap-5 pb-6 border-b border-line">
+                <div class="flex items-center gap-2 text-sm text-foreground">
+                    <svg class="w-4 h-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.5V19m0-9.5h18m-18 0V7a2 2 0 012-2h4a2 2 0 012 2v2.5m6-2.5V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v2.5M3 19h18M3 19v-3a1 1 0 011-1h16a1 1 0 011 1v3"/>
+                    </svg>
+                    <span><strong class="font-semibold">{{ $property->bedrooms }}</strong> {{ Str::plural('bedroom', $property->bedrooms) }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-foreground">
+                    <svg class="w-4 h-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h18M3 13v5a2 2 0 002 2h14a2 2 0 002-2v-5M3 13H2m1 0V9a5 5 0 015-5h1m-1 5H4m15 4h1m-1 0V9a1 1 0 00-1-1h-1"/>
+                    </svg>
+                    <span><strong class="font-semibold">{{ $property->bathrooms }}</strong> {{ Str::plural('bathroom', $property->bathrooms) }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-foreground">
+                    <svg class="w-4 h-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2v-9zm3 5h2m2 0h2m2 0h2M6 9.5v1m4-1v1m4-1v1"/>
+                    </svg>
+                    <span><strong class="font-semibold">{{ $property->area }}</strong> sqm</span>
+                </div>
+            </div>
+
+            {{-- Owner --}}
+            @if($property->user)
+                <div class="flex items-center gap-3 pb-6 border-b border-line">
+                    <div class="w-10 h-10 rounded-full bg-foreground flex items-center justify-center flex-shrink-0">
+                        <span class="text-sm font-semibold text-on-primary font-serif">{{ strtoupper(substr($property->user->name, 0, 1)) }}</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-foreground">{{ $property->user->name }}</p>
+                        <p class="text-xs text-dim">{{ $property->user->email }}</p>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Description --}}
+            @if($property->description)
+                <div class="pb-6 border-b border-line">
+                    <h2 class="text-base font-semibold text-foreground font-serif mb-3">About this property</h2>
+                    <p class="text-sm text-dim leading-relaxed">{{ $property->description }}</p>
+                </div>
+            @endif
+
+            {{-- Amenities --}}
+            @php
+                $amenities = is_array($property->amenities)
+                    ? $property->amenities
+                    : (is_string($property->amenities) && str_starts_with(trim($property->amenities ?? ''), '[')
+                        ? json_decode($property->amenities, true)
+                        : array_filter(array_map('trim', explode(',', $property->amenities ?? '')))
+                    );
+            @endphp
+            @if(!empty($amenities))
+                <div class="pb-6 border-b border-line">
+                    <h2 class="text-base font-semibold text-foreground font-serif mb-4">What this place offers</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        @foreach($amenities as $amenity)
+                            <div class="flex items-center gap-2.5 text-sm text-foreground">
+                                <svg class="w-4 h-4 text-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                </svg>
+                                {{ $amenity }}
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- Location --}}
+            @php
+                $addr = $property->address;
+                $brgy = $addr?->barangay;
+                $city = $brgy?->city;
+                $prov = $city?->province;
+                $reg  = $prov?->region;
+            @endphp
+            @if($addr)
+                <div>
+                    <h2 class="text-base font-semibold text-foreground font-serif mb-4">Location</h2>
+                    <div class="rounded-sm border border-line bg-subtle/30 p-4 text-sm space-y-2">
+                        @foreach([
+                            'Region'   => $reg?->name,
+                            'Province' => $prov?->name,
+                            'City'     => $city?->name,
+                            'Barangay' => $brgy?->name,
+                            'Street'   => $addr->street,
+                            'ZIP'      => $addr->zip_code,
+                        ] as $label => $value)
+                            @if($value)
+                                <div class="flex items-start gap-2">
+                                    <span class="text-dim text-[10px] uppercase tracking-wider w-20 shrink-0 mt-0.5">{{ $label }}</span>
+                                    <span class="text-foreground">{{ $value }}</span>
                                 </div>
-                            </td>
-                            <td class="px-4 py-3 text-foreground">&#8369;{{ number_format($property->price, 2) }}</td>
-                            <td class="px-4 py-3 text-foreground">{{ $property->address?->barangay?->city?->name ?? '—' }}</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider {{ $property->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                    {{ $property->status ? 'Active' : 'Inactive' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-dim">{{ $property->created_at->format('M d, Y') }}</td>
-                            <td class="px-4 py-3">
-                                <div class="flex gap-2">
-                                    <button wire:click="view({{ $property->id }})" class="text-sm text-dim hover:text-foreground">View</button>
-                                    <button wire:click="edit({{ $property->id }})" class="text-sm text-dim hover:text-foreground">Edit</button>
-                                    <button wire:click="confirmDelete({{ $property->id }})" class="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-dim">No properties found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
         </div>
 
-        {{-- Pagination --}}
-        <div class="p-4 border-t border-line flex items-center justify-between gap-4">
-            <div class="flex items-center gap-2 text-sm text-dim">
-                <span>Rows per page:</span>
-                <select wire:model.live="perPage" class="rounded-md border border-line bg-card text-foreground text-sm py-1 px-2 focus:outline-none focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </select>
+        {{-- Right: sticky info card --}}
+        <div class="lg:sticky lg:top-20 self-start space-y-4">
+
+            {{-- Price card --}}
+            <div class="border border-line bg-card rounded-sm p-6" style="box-shadow: var(--shadow-lg);">
+                <p class="text-[10px] text-dim uppercase tracking-wider mb-1">Monthly Rate</p>
+                <p class="text-3xl font-bold text-foreground font-serif tracking-tight mb-5">
+                    ₱{{ number_format($property->price, 2) }}
+                    <span class="text-sm font-normal text-dim font-sans">/mo</span>
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-subtle/50 rounded-sm p-3">
+                        <p class="text-[10px] text-dim uppercase tracking-wider mb-1">Bedrooms</p>
+                        <p class="font-semibold text-foreground">{{ $property->bedrooms }}</p>
+                    </div>
+                    <div class="bg-subtle/50 rounded-sm p-3">
+                        <p class="text-[10px] text-dim uppercase tracking-wider mb-1">Bathrooms</p>
+                        <p class="font-semibold text-foreground">{{ $property->bathrooms }}</p>
+                    </div>
+                    <div class="bg-subtle/50 rounded-sm p-3">
+                        <p class="text-[10px] text-dim uppercase tracking-wider mb-1">Area</p>
+                        <p class="font-semibold text-foreground">{{ $property->area }} sqm</p>
+                    </div>
+                    <div class="bg-subtle/50 rounded-sm p-3">
+                        <p class="text-[10px] text-dim uppercase tracking-wider mb-1">Type</p>
+                        <p class="font-semibold text-foreground">{{ $property->propertyType->name ?? '—' }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="flex-1">
-                {{ $properties->links() }}
-            </div>
+
+            {{-- Reviews summary --}}
+            @if($property->reviews->count())
+                <div class="rounded-sm border border-line bg-card p-5" style="box-shadow: var(--shadow-xs);">
+                    <h2 class="text-sm font-semibold text-foreground font-serif mb-3">Reviews</h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl font-bold text-foreground font-serif">{{ round($property->reviews->avg('rating'), 1) }}</span>
+                        <div>
+                            <div class="flex gap-0.5">
+                                @php $avg = round($property->reviews->avg('rating')); @endphp
+                                @for($s = 1; $s <= 5; $s++)
+                                    <svg class="w-3.5 h-3.5 {{ $s <= $avg ? 'text-yellow-400' : 'text-dim/20' }}" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                @endfor
+                            </div>
+                            <p class="text-xs text-dim mt-0.5">{{ $property->reviews->count() }} {{ Str::plural('review', $property->reviews->count()) }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
         </div>
     </div>
 
-    {{-- Multi-Step Create / Edit Modal --}}
-    @if($showModal)
+    {{-- Delete confirmation --}}
+    @if($showDeleteConfirm)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="closeModal"></div>
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showDeleteConfirm', false)"></div>
+            <div class="relative w-full max-w-sm rounded-sm border border-line bg-card p-6" style="box-shadow: var(--shadow-lg);">
+                <h3 class="text-base font-semibold text-foreground font-serif mb-2">Delete property?</h3>
+                <p class="text-sm text-dim mb-5">This will permanently delete <strong class="text-foreground">{{ $property->title }}</strong> and all its images. This cannot be undone.</p>
+                <div class="flex gap-2 justify-end">
+                    <button wire:click="$set('showDeleteConfirm', false)"
+                        class="rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Cancel</button>
+                    <button wire:click="delete"
+                        class="rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">Delete Property</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Edit Wizard Modal --}}
+    @if($showEditModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="closeEdit"></div>
             <div class="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-sm border border-line bg-card flex flex-col" style="box-shadow: var(--shadow-lg);">
 
                 {{-- Header --}}
                 <div class="flex items-center justify-between p-4 border-b border-line shrink-0">
-                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">{{ $editingId ? 'Edit Property' : 'Add Property' }}</h3>
-                    <button wire:click="closeModal" class="text-dim hover:text-foreground transition-colors">
+                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">Edit Property</h3>
+                    <button wire:click="closeEdit" class="text-dim hover:text-foreground transition-colors">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
@@ -385,7 +567,6 @@
                             <p class="text-sm text-dim mb-6">Max file size: 5MB. Formats: jpeg, jpg, png, webp.</p>
 
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {{-- Existing photos (edit mode) --}}
                                 @foreach($existingPhotos as $idx => $photo)
                                     <div class="relative group aspect-[4/3] rounded-sm overflow-hidden border border-line bg-subtle">
                                         <img src="{{ asset('storage/' . $photo['path']) }}" class="w-full h-full object-cover" />
@@ -399,7 +580,6 @@
                                     </div>
                                 @endforeach
 
-                                {{-- New uploaded photos --}}
                                 @foreach($photos as $idx => $photo)
                                     <div class="relative group aspect-[4/3] rounded-sm overflow-hidden border border-line bg-subtle">
                                         <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover" />
@@ -413,7 +593,6 @@
                                     </div>
                                 @endforeach
 
-                                {{-- Upload button --}}
                                 <label class="aspect-[4/3] rounded-sm border-2 border-dashed border-line hover:border-dim bg-subtle/50 flex flex-col items-center justify-center cursor-pointer transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-dim mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
                                     <span class="text-sm text-dim">Upload photos</span>
@@ -527,37 +706,9 @@
                         <button type="button" wire:click="save"
                             class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-5 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            {{ $editingId ? 'Update Property' : 'Create Property' }}
+                            Update Property
                         </button>
                     @endif
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- View is now a dedicated page (admin.property) --}}
-
-    {{-- Delete Confirmation Modal --}}
-    @if($showDeleteModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="$set('showDeleteModal', false)"></div>
-            <div class="relative w-full max-w-sm rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-lg);">
-                <div class="p-6 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                    <h3 class="text-lg font-semibold text-foreground mb-2">Delete Property</h3>
-                    <p class="text-sm text-dim mb-6">Are you sure you want to delete this property? This action cannot be undone.</p>
-                    <div class="flex justify-center gap-3">
-                        <button wire:click="$set('showDeleteModal', false)"
-                            class="rounded-md border border-line px-4 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
-                            Cancel
-                        </button>
-                        <button wire:click="delete"
-                            class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
-                            Delete
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

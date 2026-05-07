@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Engagement&display=swap" rel="stylesheet">
 
     <script>
         (function() {
@@ -51,11 +51,8 @@
         {{-- Left: decorative panel (hidden on mobile) --}}
         <div class="hidden lg:flex lg:w-5/12 xl:w-1/2 bg-foreground relative flex-col justify-between p-12 text-on-primary">
             <div>
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-sm bg-on-primary flex items-center justify-center">
-                        <span class="text-sm font-bold text-foreground font-serif">{{ strtoupper(substr(config('app.name'), 0, 1)) }}</span>
-                    </div>
-                    <span class="text-lg font-semibold font-serif tracking-tight">{{ config('app.name') }}</span>
+                <div>
+                    <span class="text-3xl font-normal" style="font-family: 'Engagement', cursive;">{{ config('app.name') }}</span>
                 </div>
             </div>
 
@@ -77,11 +74,8 @@
             {{-- Top bar with dark mode toggle --}}
             <div class="flex items-center justify-between p-6">
                 {{-- Mobile logo --}}
-                <div class="flex items-center gap-2.5 lg:hidden">
-                    <div class="w-7 h-7 rounded-sm bg-foreground flex items-center justify-center">
-                        <span class="text-xs font-bold text-on-primary font-serif">{{ strtoupper(substr(config('app.name'), 0, 1)) }}</span>
-                    </div>
-                    <span class="text-sm font-semibold font-serif text-foreground tracking-tight">{{ config('app.name') }}</span>
+                <div class="lg:hidden">
+                    <span class="text-2xl font-normal text-foreground" style="font-family: 'Engagement', cursive;">{{ config('app.name') }}</span>
                 </div>
                 <div class="hidden lg:block"></div>
 

@@ -1,6 +1,7 @@
 <div>
-    {{-- Hero Banner (full-bleed) --}}
-    <div class="relative overflow-hidden -mx-5 -mt-5 mb-8 lg:-mx-8 lg:-mt-8" style="box-shadow: 0 4px 24px rgba(0,0,0,.12);">
+    {{-- Hero Banner (full-bleed, true viewport width) --}}
+    <div class="relative overflow-hidden -mt-5 lg:-mt-8 mb-8"
+         style="width: 100vw; margin-left: calc(-50vw + 50%); box-shadow: 0 4px 24px rgba(0,0,0,.12);">
         <div class="relative h-64 md:h-72 lg:h-80">
             {{-- Background Image --}}
             <img src="{{ asset('images/hero-banner.png') }}" alt="Find your perfect home" class="absolute inset-0 w-full h-full object-cover">
@@ -8,30 +9,32 @@
             {{-- Gradient Overlay --}}
             <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
             
-            {{-- Content --}}
-            <div class="relative z-10 flex flex-col justify-center h-full px-8 lg:px-12 max-w-2xl">
-                <p class="text-[10px] font-semibold text-white/60 uppercase tracking-[0.2em] mb-2">Welcome back</p>
-                <h1 class="text-3xl lg:text-4xl font-semibold text-white font-serif tracking-tight leading-tight">
-                    Find your perfect<br>place to call home
-                </h1>
-                <p class="text-sm text-white/70 mt-3 leading-relaxed max-w-md">
-                    Discover curated rental properties that match your lifestyle. Browse, save, and reserve — all in one place.
-                </p>
-                <div class="flex items-center gap-3 mt-6">
-                    <a href="{{ route('renter.explore') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-foreground rounded-sm hover:bg-white/90 font-medium text-sm transition-all" style="box-shadow: var(--shadow-xs);">
-                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        Browse Properties
-                    </a>
-                    <a href="{{ route('renter.favorites') }}" class="inline-flex items-center gap-2 px-5 py-2.5 border border-white/30 text-white rounded-sm hover:bg-white/10 font-medium text-sm transition-all">
-                        My Favourites
-                    </a>
+            {{-- Content — mirrors the main layout container so text lines up with the page below --}}
+            <div class="relative z-10 h-full w-full max-w-[1400px] mx-auto px-5 lg:px-8 flex items-center justify-between">
+                <div class="flex flex-col justify-center max-w-2xl">
+                    <p class="text-[10px] font-semibold text-white/60 uppercase tracking-[0.2em] mb-2">Welcome back</p>
+                    <h1 class="text-3xl lg:text-4xl font-semibold text-white font-serif tracking-tight leading-tight">
+                        Find your perfect<br>place to call home
+                    </h1>
+                    <p class="text-sm text-white/70 mt-3 leading-relaxed max-w-md">
+                        Discover curated rental properties that match your lifestyle. Browse, save, and reserve — all in one place.
+                    </p>
+                    <div class="flex items-center gap-3 mt-6">
+                        <a href="{{ route('renter.explore') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-sm hover:bg-white/90 font-medium text-sm transition-all" style="color: #111827; box-shadow: var(--shadow-xs);">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            Browse Properties
+                        </a>
+                        <a href="{{ route('renter.favorites') }}" class="inline-flex items-center gap-2 px-5 py-2.5 border border-white/30 text-white rounded-sm hover:bg-white/10 font-medium text-sm transition-all">
+                            My Favourites
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Greeting Badge --}}
-            <div class="absolute bottom-6 right-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-sm px-4 py-3 hidden lg:block">
-                <p class="text-xs text-white/80 font-medium">Signed in as</p>
-                <p class="text-sm text-white font-semibold font-serif tracking-tight mt-0.5">{{ auth()->user()->name }}</p>
+                {{-- Greeting Badge — aligned to the right edge of the layout --}}
+                <div class="self-end mb-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-sm px-4 py-3 hidden lg:block flex-shrink-0">
+                    <p class="text-xs text-white/80 font-medium">Signed in as</p>
+                    <p class="text-sm text-white font-semibold font-serif tracking-tight mt-0.5">{{ auth()->user()->name }}</p>
+                </div>
             </div>
         </div>
     </div>

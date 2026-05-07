@@ -19,6 +19,7 @@ Route::get('/register', \App\Livewire\Auth\Register::class)->name('register');
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
     Route::get('/properties', \App\Livewire\Admin\Properties::class)->name('admin.properties');
+    Route::get('/properties/{id}', \App\Livewire\Admin\PropertyDetail::class)->name('admin.property');
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('admin.users');
     Route::get('/reservations', \App\Livewire\Admin\Reservations::class)->name('admin.reservations');
     Route::get('/inquiries', \App\Livewire\Admin\Inquiries::class)->name('admin.inquiries');
@@ -47,19 +48,39 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
         $request->fulfill();
-        return redirect()->route('renter.home');
+        // After email verified, prompt renter to complete their profile
+        return redirect()->route('profile.complete');
     })->middleware('signed')->name('verification.verify');
 
     Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('status', 'verification-link-sent');
     })->middleware('throttle:6,1')->name('verification.send');
+
+    // Profile completion & pending verification (auth + verified, before renter middleware)
+    Route::get('/profile/complete', \App\Livewire\Auth\CompleteProfile::class)
+        ->middleware('verified')
+        ->name('profile.complete');
+
+    Route::get('/profile/pending', \App\Livewire\Auth\PendingVerification::class)
+        ->middleware('verified')
+        ->name('profile.pending');
+
+    // General logout — reachable by any authenticated user regardless of role or
+    // verification status, so partially-verified renters can still sign out.
+    Route::post('/logout', function () {
+        auth()->logout();
+        session()->invalidate();
+        session()->regenerateToken();
+        return redirect()->route('login');
+    })->name('auth.logout');
 });
 
 // Renter Routes (auth + verified email required)
 Route::prefix('renter')->middleware(['auth', 'renter', 'verified'])->group(function () {
     Route::get('/', \App\Livewire\Renter\Home::class)->name('renter.home');
     Route::get('/explore', \App\Livewire\Renter\Explore::class)->name('renter.explore');
+    Route::get('/property/{id}', \App\Livewire\Renter\PropertyDetail::class)->name('renter.property');
     Route::get('/favorites', \App\Livewire\Renter\Favorites::class)->name('renter.favorites');
     Route::get('/reservations', \App\Livewire\Renter\MyReservations::class)->name('renter.reservations');
     Route::get('/reviews', \App\Livewire\Renter\MyReviews::class)->name('renter.reviews');

@@ -70,7 +70,7 @@
 
         {{-- Advanced Filters Panel --}}
             <div x-show="showFilters" x-cloak class="p-4 border-b border-line bg-subtle/50">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-dim mb-1">Role</label>
                         <select wire:model.live="filterRole"
@@ -88,6 +88,17 @@
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                             <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-dim mb-1">ID Verification</label>
+                        <select wire:model.live="filterVerification"
+                            class="w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+                            <option value="">All</option>
+                            <option value="none">Not Submitted</option>
+                            <option value="pending">Pending Review</option>
+                            <option value="verified">Verified</option>
+                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
                     <div>
@@ -156,6 +167,7 @@
                                 @endif
                             </button>
                         </th>
+                        <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">ID Verification</th>
                         <th class="px-4 py-2.5 text-left text-[10px] font-semibold text-dim uppercase tracking-[0.1em]">Actions</th>
                     </tr>
                 </thead>
@@ -176,6 +188,26 @@
                             <td class="px-4 py-3 text-dim" x-show="columns.phone">{{ $user->phone ?? '—' }}</td>
                             <td class="px-4 py-3 text-dim" x-show="columns.joined">{{ $user->created_at->format('M d, Y') }}</td>
                             <td class="px-4 py-3">
+                                @php
+                                    $vs = $user->id_verification_status ?? 'none';
+                                    $vsBadge = match($vs) {
+                                        'verified' => 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400',
+                                        'pending'  => 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400',
+                                        'rejected' => 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400',
+                                        default    => 'bg-subtle text-dim',
+                                    };
+                                    $vsLabel = match($vs) {
+                                        'verified' => 'Verified',
+                                        'pending'  => 'Pending',
+                                        'rejected' => 'Rejected',
+                                        default    => 'None',
+                                    };
+                                @endphp
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $vsBadge }}">
+                                    {{ $vsLabel }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
                                 <div class="flex items-center gap-2">
                                     <button wire:click="viewUser({{ $user->id }})"
                                             class="text-xs text-dim hover:text-foreground font-medium transition-colors">View</button>
@@ -186,7 +218,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-dim">No users found.</td>
+                            <td colspan="9" class="px-4 py-8 text-center text-dim">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -230,7 +262,7 @@
                         {{ ucfirst($viewing->status) }}
                     </span>
                 </div>
-                <div class="p-5 space-y-4">
+                <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <div class="bg-subtle/50 border border-line rounded-sm p-3 overflow-hidden">
                             <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">Email</span>
@@ -257,9 +289,80 @@
                             <p class="text-sm text-foreground bg-subtle/50 border border-line rounded-sm p-3">{{ $viewing->bio }}</p>
                         </div>
                     @endif
+
+                    {{-- ID Verification Section --}}
+                    @if($viewing->role === 'renter')
+                        @php
+                            $ivs = $viewing->id_verification_status ?? 'none';
+                            $ivsBadge = match($ivs) {
+                                'verified' => 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400 border-green-200 dark:border-green-500/20',
+                                'pending'  => 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border-amber-200 dark:border-amber-500/20',
+                                'rejected' => 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400 border-red-200 dark:border-red-500/20',
+                                default    => 'bg-subtle text-dim border-line',
+                            };
+                        @endphp
+                        <div class="border border-line rounded-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-3 py-2 bg-subtle/30 border-b border-line">
+                                <span class="text-[10px] font-semibold text-dim uppercase tracking-wider">ID Verification</span>
+                                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider {{ $ivsBadge }}">
+                                    {{ ucfirst($ivs) }}
+                                </span>
+                            </div>
+                            @if(in_array($ivs, ['pending', 'verified', 'rejected']) && $viewing->id_type)
+                                <div class="p-3 space-y-2 text-sm">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Date of Birth</span>
+                                            <span class="text-foreground">{{ $viewing->date_of_birth?->format('M d, Y') ?? '—' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">ID Type</span>
+                                            <span class="text-foreground">{{ $viewing->id_type ?? '—' }}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">ID Number</span>
+                                        <span class="text-foreground font-mono">{{ $viewing->id_number ?? '—' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-[10px] text-dim uppercase tracking-wider mb-0.5">Address</span>
+                                        @php
+                                            $addrParts = array_filter([
+                                                $viewing->address_line ?? null,
+                                                optional(\App\Models\Barangay::find($viewing->barangay_id))->name,
+                                                optional(\App\Models\City::find($viewing->city_id))->name,
+                                                optional(\App\Models\Province::find($viewing->province_id))->name,
+                                            ]);
+                                        @endphp
+                                        <span class="text-foreground">{{ $addrParts ? implode(', ', $addrParts) : '—' }}</span>
+                                    </div>
+                                    @if($viewing->id_image)
+                                        <div>
+                                            <span class="block text-[10px] text-dim uppercase tracking-wider mb-1">ID Photo</span>
+                                            <a href="{{ asset('storage/' . $viewing->id_image) }}" target="_blank"
+                                               class="block rounded border border-line overflow-hidden hover:opacity-90 transition-opacity">
+                                                <img src="{{ asset('storage/' . $viewing->id_image) }}"
+                                                     alt="Government ID"
+                                                     class="w-full max-h-36 object-cover" />
+                                                <span class="block text-[10px] text-dim text-center py-1 bg-subtle/50">Click to open full size</span>
+                                            </a>
+                                        </div>
+                                    @endif
+                                    @if($ivs === 'rejected' && $viewing->id_rejection_reason)
+                                        <div class="mt-1 rounded border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 px-3 py-2">
+                                            <span class="block text-[10px] text-red-500 uppercase tracking-wider mb-0.5 font-semibold">Rejection Reason</span>
+                                            <p class="text-xs text-red-600 dark:text-red-400">{{ $viewing->id_rejection_reason }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            @else
+                                <p class="px-3 py-3 text-xs text-dim">No personal information submitted yet.</p>
+                            @endif
+                        </div>
+                    @endif
                 </div>
-                <div class="flex items-center justify-between p-4 border-t border-line">
-                    <div class="flex items-center gap-2">
+                <div class="flex items-center justify-between p-4 border-t border-line flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <button wire:click="openEdit({{ $viewing->id }})"
                                 class="rounded-sm bg-foreground px-3 py-1.5 text-xs font-medium text-on-primary hover:opacity-90 transition-all">Edit</button>
                         @if($viewing->status === 'active')
@@ -269,9 +372,47 @@
                             <button wire:click="updateStatus({{ $viewing->id }}, 'active')"
                                     class="rounded-sm bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors">Activate</button>
                         @endif
+                        {{-- ID Verification actions for renters with pending status --}}
+                        @if($viewing->role === 'renter' && ($viewing->id_verification_status ?? 'none') === 'pending')
+                            <button wire:click="verifyUser({{ $viewing->id }})"
+                                    class="rounded-sm bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors">Verify Identity</button>
+                            <button wire:click="openReject({{ $viewing->id }})"
+                                    class="rounded-sm border border-red-300 dark:border-red-500/40 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">Reject</button>
+                        @endif
+                        @if($viewing->role === 'renter' && ($viewing->id_verification_status ?? 'none') === 'verified')
+                            <button wire:click="openReject({{ $viewing->id }})"
+                                    class="rounded-sm border border-line px-3 py-1.5 text-xs font-medium text-dim hover:bg-subtle transition-colors">Revoke Verification</button>
+                        @endif
                     </div>
                     <button wire:click="closeView"
                             class="rounded-sm border border-line px-4 py-1.5 text-xs font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Reject / Revoke Modal --}}
+    @if($rejectingId)
+        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm" wire:click="closeReject"></div>
+            <div class="relative w-full max-w-sm rounded-sm border border-line bg-card overflow-hidden" style="box-shadow: var(--shadow-lg);">
+                <div class="flex items-center justify-between p-4 border-b border-line">
+                    <h3 class="text-base font-semibold text-foreground font-serif tracking-tight">Reject Verification</h3>
+                    <button wire:click="closeReject" class="text-dim hover:text-foreground transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-5">
+                    <p class="text-sm text-dim mb-3">Provide a reason so the renter knows what to correct when re-submitting.</p>
+                    <textarea wire:model="rejectReason" rows="3" placeholder="e.g. ID number does not match the selected ID type…"
+                        class="w-full rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground resize-none"></textarea>
+                    @error('rejectReason') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                </div>
+                <div class="flex items-center justify-end gap-2 p-4 border-t border-line">
+                    <button wire:click="closeReject"
+                            class="rounded-sm border border-line px-4 py-2 text-sm font-medium text-dim hover:text-foreground hover:bg-subtle transition-colors">Cancel</button>
+                    <button wire:click="confirmReject"
+                            class="rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">Confirm Rejection</button>
                 </div>
             </div>
         </div>

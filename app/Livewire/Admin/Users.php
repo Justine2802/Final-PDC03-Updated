@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Mail\IdentityVerified;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -14,6 +16,7 @@ class Users extends Component
     public string $search = '';
     public string $filterRole = '';
     public string $filterStatus = '';
+    public string $filterVerification = '';
     public string $sortBy = 'created_at';
     public string $sortDir = 'desc';
     public string $dateFrom = '';
@@ -31,6 +34,10 @@ class Users extends Component
     public string $editRole   = '';
     public string $editStatus = '';
 
+    // Reject modal
+    public ?int $rejectingId     = null;
+    public string $rejectReason  = '';
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -42,6 +49,11 @@ class Users extends Component
     }
 
     public function updatedFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterVerification(): void
     {
         $this->resetPage();
     }
@@ -73,7 +85,7 @@ class Users extends Component
 
     public function resetFilters(): void
     {
-        $this->reset(['search', 'filterRole', 'filterStatus', 'dateFrom', 'dateTo']);
+        $this->reset(['search', 'filterRole', 'filterStatus', 'filterVerification', 'dateFrom', 'dateTo']);
         $this->resetPage();
     }
 
@@ -136,6 +148,49 @@ class Users extends Component
     {
         User::find($id)?->update(['status' => $status]);
         $this->dispatch('notify', message: 'User status updated.');
+    }
+
+    public function verifyUser(int $id): void
+    {
+        $user = User::find($id);
+        if (!$user) return;
+
+        $user->update([
+            'id_verification_status' => 'verified',
+            'id_rejection_reason'    => null,
+        ]);
+
+        Mail::to($user->email)->send(new IdentityVerified($user));
+
+        $this->viewingId = null;
+        $this->dispatch('notify', message: 'User identity verified and notified by email.');
+    }
+
+    public function openReject(int $id): void
+    {
+        $this->rejectingId  = $id;
+        $this->rejectReason = '';
+        $this->resetValidation('rejectReason');
+    }
+
+    public function closeReject(): void
+    {
+        $this->rejectingId  = null;
+        $this->rejectReason = '';
+    }
+
+    public function confirmReject(): void
+    {
+        $this->validate(['rejectReason' => 'required|string|min:5|max:500']);
+
+        User::find($this->rejectingId)?->update([
+            'id_verification_status' => 'rejected',
+            'id_rejection_reason'    => $this->rejectReason,
+        ]);
+
+        $this->viewingId = null;
+        $this->closeReject();
+        $this->dispatch('notify', message: 'User verification rejected.');
     }
 
     public function export(): StreamedResponse
@@ -207,6 +262,7 @@ class Users extends Component
                 ->orWhere('email', 'like', "%{$this->search}%")))
             ->when($this->filterRole, fn ($q) => $q->where('role', $this->filterRole))
             ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus))
+            ->when($this->filterVerification, fn ($q) => $q->where('id_verification_status', $this->filterVerification))
             ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
             ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->orderBy($this->sortBy, $this->sortDir);
@@ -216,7 +272,7 @@ class Users extends Component
     {
         $users = $this->buildQuery()->paginate($this->perPage);
 
-        $activeFilterCount = collect([$this->filterRole, $this->filterStatus, $this->dateFrom, $this->dateTo])
+        $activeFilterCount = collect([$this->filterRole, $this->filterStatus, $this->filterVerification, $this->dateFrom, $this->dateTo])
             ->filter()
             ->count();
 

@@ -70,7 +70,13 @@ class Inquiries extends Component
             ->paginate($this->perPage);
 
         $viewing = $this->viewingId
-            ? Inquiry::with(['property', 'user'])->find($this->viewingId)
+            ? Inquiry::with([
+                'property',
+                'property.images',
+                'property.propertyType',
+                'property.address.barangay.city.province',
+                'user',
+              ])->find($this->viewingId)
             : null;
 
         return view('livewire.admin.inquiries', compact('inquiries', 'viewing'))
