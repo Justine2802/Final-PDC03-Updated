@@ -22,9 +22,12 @@ class MyInquiries extends Component
             $query->where('status', $this->statusFilter);
         }
 
-        $inquiries = $query->with(['property', 'property.propertyType'])
-            ->latest()
-            ->paginate(10);
+        $inquiries = $query->with([
+                'property',
+                'property.images',
+                'property.propertyType',
+                'property.address.barangay.city.province',
+            ])->latest()->paginate(10);
 
         return view('livewire.renter.my-inquiries', [
             'inquiries' => $inquiries,

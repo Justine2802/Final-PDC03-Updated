@@ -9,7 +9,7 @@
         <p class="text-xs text-dim mt-1">Manage property reviews and ratings.</p>
     </div>
 
-    <div class="rounded-sm border border-line bg-card" style="box-shadow: var(--shadow-xs);">
+    <div class="rounded-sm border border-line bg-card" x-data="{ showFilters: false }" style="box-shadow: var(--shadow-xs);">
         {{-- Toolbar --}}
         <div class="p-4 border-b border-line flex flex-col sm:flex-row sm:items-center gap-3">
             <input type="text" wire:model.live.debounce.300ms="search"
@@ -17,28 +17,90 @@
                    class="w-full sm:max-w-xs rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground placeholder-dim/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
 
             <div class="flex items-center gap-2 sm:ml-auto">
-                <select wire:model.live="filterRating"
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    <option value="">All Ratings</option>
-                    @for($i = 5; $i >= 1; $i--)
-                        <option value="{{ $i }}">{{ $i }} Star{{ $i > 1 ? 's' : '' }}</option>
-                    @endfor
-                </select>
+                {{-- Filters toggle --}}
+                <button @click="showFilters = !showFilters"
+                    class="inline-flex items-center gap-1.5 rounded-sm border border-line px-3 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    Filters
+                    @if($activeFilterCount > 0)
+                        <span class="inline-flex items-center justify-center h-4 min-w-[1rem] rounded-sm bg-foreground text-on-primary text-[10px] font-semibold px-1">{{ $activeFilterCount }}</span>
+                    @endif
+                </button>
 
-                <select wire:model.live="filterVerified"
-                        class="rounded-sm border border-line bg-page px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
-                    <option value="">All</option>
-                    <option value="1">Verified</option>
-                    <option value="0">Unverified</option>
-                </select>
-
+                {{-- Per page --}}
                 <select wire:model.live="perPage"
                         class="rounded-sm border border-line bg-page text-foreground text-sm py-2 px-2 focus:outline-none focus:ring-1 focus:ring-foreground">
                     <option value="10">10 / page</option>
                     <option value="25">25 / page</option>
                     <option value="50">50 / page</option>
                 </select>
+
+                {{-- Export --}}
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open"
+                        class="inline-flex items-center gap-1.5 rounded-sm bg-foreground px-3 py-2 text-sm font-medium text-on-primary hover:opacity-90 transition-all">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Export
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false" x-transition
+                         class="absolute right-0 mt-1 w-40 rounded-sm border border-line bg-card z-50" style="box-shadow: var(--shadow-lg);">
+                        <button wire:click="export" @click="open = false"
+                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-t-sm">
+                            <svg class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Export as CSV
+                        </button>
+                        <button wire:click="exportExcel" @click="open = false"
+                            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-subtle transition-colors rounded-b-sm border-t border-line">
+                            <svg class="h-4 w-4 text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Export as Excel
+                        </button>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        {{-- Filters panel --}}
+        <div x-show="showFilters" x-cloak class="p-4 border-b border-line bg-subtle/50">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-dim mb-1">Rating</label>
+                    <select wire:model.live="filterRating"
+                            class="w-full rounded-sm border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                        <option value="">All Ratings</option>
+                        @for($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}">{{ $i }} Star{{ $i > 1 ? 's' : '' }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-dim mb-1">Verification</label>
+                    <select wire:model.live="filterVerified"
+                            class="w-full rounded-sm border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground">
+                        <option value="">All</option>
+                        <option value="1">Verified</option>
+                        <option value="0">Unverified</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-dim mb-1">Date From</label>
+                    <input type="date" wire:model.live="dateFrom"
+                           class="w-full rounded-sm border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-dim mb-1">Date To</label>
+                    <input type="date" wire:model.live="dateTo"
+                           class="w-full rounded-sm border border-line bg-card px-3 py-2 text-sm text-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground" />
+                </div>
+            </div>
+            @if($activeFilterCount > 0)
+                <div class="mt-3">
+                    <button wire:click="$set('filterRating', ''); $set('filterVerified', ''); $set('dateFrom', ''); $set('dateTo', '')"
+                            class="text-sm text-dim hover:text-foreground underline underline-offset-2">
+                        Clear all filters
+                    </button>
+                </div>
+            @endif
         </div>
 
         {{-- Table --}}
@@ -62,7 +124,21 @@
                     @forelse($reviews as $review)
                         <tr class="hover:bg-subtle/50 transition-colors">
                             <td class="px-4 py-3 text-dim">{{ $review->id }}</td>
-                            <td class="px-4 py-3 font-medium text-foreground">{{ $review->property->title ?? '—' }}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2.5 max-w-[200px]">
+                                    <div class="w-9 h-9 rounded-sm overflow-hidden bg-subtle flex-shrink-0">
+                                        @if($review->property?->images?->first())
+                                            <img src="{{ asset('storage/' . $review->property->images->first()->image_path) }}"
+                                                 class="w-full h-full object-cover" alt="">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-dim/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <span class="font-medium text-foreground text-sm truncate">{{ $review->property->title ?? '—' }}</span>
+                                </div>
+                            </td>
                             <td class="px-4 py-3 text-foreground">{{ $review->renter->name ?? '—' }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-0.5">
