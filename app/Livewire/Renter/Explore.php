@@ -5,7 +5,6 @@ namespace App\Livewire\Renter;
 use App\Models\Favorite;
 use App\Models\Property;
 use App\Models\PropertyType;
-use App\Models\Reservation;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,28 +18,6 @@ class Explore extends Component
     public string $minBedrooms  = '0';
     public string $minBathrooms = '0';
 
-    public ?int $selectedPropertyId = null;
-
-    public bool $showReservationForm = false;
-    public string $moveInDate       = '';
-    public string $moveOutDate      = '';
-    public string $reservationNotes = '';
-
-
-    protected function rules(): array
-    {
-        return [
-            'moveInDate'       => 'required|date|after_or_equal:today',
-            'moveOutDate'      => 'nullable|date|after:moveInDate',
-            'reservationNotes' => 'nullable|max:500',
-        ];
-    }
-
-    protected $messages = [
-        'moveInDate.required'       => 'Move-in date is required.',
-        'moveInDate.after_or_equal' => 'Move-in date must be today or in the future.',
-        'moveOutDate.after'         => 'Move-out date must be after the move-in date.',
-    ];
 
     public function applyFilters(
         string $search,
@@ -67,53 +44,9 @@ class Explore extends Component
         $this->resetPage();
     }
 
-    public function showPropertyDetail(int $id): void
+    public function viewProperty(int $id): void
     {
-        $this->selectedPropertyId = $id;
-        $this->showReservationForm = false;
-        $this->resetReservationForm();
-    }
-
-    public function closePropertyDetail(): void
-    {
-        $this->selectedPropertyId = null;
-        $this->showReservationForm = false;
-        $this->resetReservationForm();
-    }
-
-    public function openReservationForm(): void  { $this->showReservationForm = true; }
-    public function closeReservationForm(): void
-    {
-        $this->showReservationForm = false;
-        $this->resetReservationForm();
-    }
-
-    public function submitReservation(): void
-    {
-        $this->validate();
-
-        $property = Property::find($this->selectedPropertyId);
-        if (!$property) {
-            $this->dispatch('notify', message: 'Property not found.');
-            return;
-        }
-
-        $moveIn  = \Carbon\Carbon::parse($this->moveInDate);
-        $moveOut = $this->moveOutDate ? \Carbon\Carbon::parse($this->moveOutDate) : null;
-        $months  = $moveOut ? max(1, (int) $moveIn->diffInMonths($moveOut)) : 1;
-
-        Reservation::create([
-            'user_id'       => auth()->id(),
-            'property_id'   => $this->selectedPropertyId,
-            'move_in_date'  => $this->moveInDate,
-            'move_out_date' => $this->moveOutDate ?: null,
-            'total_price'   => $property->price * $months,
-            'status'        => 'pending',
-            'notes'         => $this->reservationNotes ?: null,
-        ]);
-
-        $this->dispatch('notify', message: 'Reservation submitted! Awaiting confirmation.');
-        $this->closePropertyDetail();
+        $this->redirect(route('renter.property', $id));
     }
 
     public function addToFavorites(int $propertyId): void
@@ -131,18 +64,6 @@ class Explore extends Component
         }
     }
 
-    public function sendInquiry(int $propertyId): void
-    {
-        $this->redirect(route('renter.home') . '?propertyId=' . $propertyId);
-    }
-
-    private function resetReservationForm(): void
-    {
-        $this->moveInDate       = '';
-        $this->moveOutDate      = '';
-        $this->reservationNotes = '';
-        $this->resetValidation();
-    }
 
     public function render()
     {
@@ -183,14 +104,9 @@ class Explore extends Component
             ($minBeds > 0 ? 1 : 0) +
             ($minBaths > 0 ? 1 : 0);
 
-        $selectedProperty = $this->selectedPropertyId
-            ? Property::with(['images', 'propertyType', 'address'])->find($this->selectedPropertyId)
-            : null;
-
         return view('livewire.renter.explore', [
-            'properties'        => $query->with(['propertyType', 'images', 'user'])->paginate(12),
+            'properties'        => $query->with(['propertyType', 'images', 'user', 'reviews'])->paginate(12),
             'propertyTypes'     => PropertyType::all(),
-            'selectedProperty'  => $selectedProperty,
             'favoriteIds'       => Favorite::where('user_id', auth()->id())->pluck('property_id')->toArray(),
             'activeFilterCount' => $activeFilterCount,
             'dbMaxPrice'        => $dbMaxPrice,

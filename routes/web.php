@@ -19,6 +19,7 @@ Route::get('/register', \App\Livewire\Auth\Register::class)->name('register');
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
     Route::get('/properties', \App\Livewire\Admin\Properties::class)->name('admin.properties');
+    Route::get('/properties/{id}', \App\Livewire\Admin\PropertyDetail::class)->name('admin.property');
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('admin.users');
     Route::get('/reservations', \App\Livewire\Admin\Reservations::class)->name('admin.reservations');
     Route::get('/inquiries', \App\Livewire\Admin\Inquiries::class)->name('admin.inquiries');
@@ -79,6 +80,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('renter')->middleware(['auth', 'renter', 'verified'])->group(function () {
     Route::get('/', \App\Livewire\Renter\Home::class)->name('renter.home');
     Route::get('/explore', \App\Livewire\Renter\Explore::class)->name('renter.explore');
+    Route::get('/property/{id}', \App\Livewire\Renter\PropertyDetail::class)->name('renter.property');
     Route::get('/favorites', \App\Livewire\Renter\Favorites::class)->name('renter.favorites');
     Route::get('/reservations', \App\Livewire\Renter\MyReservations::class)->name('renter.reservations');
     Route::get('/reviews', \App\Livewire\Renter\MyReviews::class)->name('renter.reviews');

@@ -110,9 +110,15 @@
                     @endforeach
                 </select>
 
-                {{-- Advanced filter toggle with live badge --}}
-                <button @click="showFilters = !showFilters"
-                    class="inline-flex items-center gap-1.5 rounded-sm border border-line px-3 py-2 text-sm font-medium text-dim hover:bg-subtle hover:text-foreground transition-colors">
+                {{-- Advanced filter toggle — only enabled after typing a search term --}}
+                <button
+                    @click="search.trim() !== '' && (showFilters = !showFilters)"
+                    x-init="$watch('search', v => { if (!v.trim()) showFilters = false })"
+                    :title="search.trim() === '' ? 'Type a search term to enable filters' : ''"
+                    :class="search.trim() !== ''
+                        ? 'text-dim hover:bg-subtle hover:text-foreground cursor-pointer'
+                        : 'opacity-40 cursor-not-allowed'"
+                    class="inline-flex items-center gap-1.5 rounded-sm border border-line px-3 py-2 text-sm font-medium transition-colors">
                     <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="showFilters ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                     </svg>
@@ -261,6 +267,28 @@
 
                             <p class="text-xs text-dim line-clamp-2 leading-relaxed">{{ $property->description }}</p>
 
+                            {{-- Star rating summary --}}
+                            @php
+                                $verifiedReviews = $property->reviews->where('is_verified', true);
+                                $reviewCount = $verifiedReviews->count();
+                                $avgRating = $reviewCount ? round($verifiedReviews->avg('rating'), 1) : null;
+                            @endphp
+                            @if($reviewCount)
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex items-center gap-0.5">
+                                        @for($s = 1; $s <= 5; $s++)
+                                            <svg class="w-3.5 h-3.5 {{ $s <= round($avgRating) ? 'text-yellow-400' : 'text-dim/20' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                    <span class="text-xs font-semibold text-foreground">{{ $avgRating }}</span>
+                                    <span class="text-xs text-dim">({{ $reviewCount }})</span>
+                                </div>
+                            @else
+                                <p class="text-xs text-dim/50 italic">No reviews yet</p>
+                            @endif
+
                             <div class="flex gap-4 py-3 border-t border-line text-xs text-dim">
                                 @if($property->bedrooms)
                                     <span><strong class="text-foreground">{{ $property->bedrooms }}</strong> beds</span>
@@ -270,9 +298,10 @@
                                 @endif
                             </div>
 
-                            <button wire:click="showPropertyDetail({{ $property->id }})" class="w-full py-2 px-4 bg-foreground text-on-primary rounded-sm hover:opacity-90 font-medium text-sm transition-all">
+                            <a href="{{ route('renter.property', $property->id) }}" wire:navigate
+                                class="block w-full py-2 px-4 bg-foreground text-on-primary rounded-sm hover:opacity-90 font-medium text-sm transition-all text-center">
                                 View Details
-                            </button>
+                            </a>
                         </div>
                     </div>
                 @endforeach
@@ -290,9 +319,9 @@
         @endif
     </div>
 
-    {{-- Property Detail Modal --}}
-    @if($selectedProperty)
-        <div class="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" wire:click.self="closePropertyDetail">
+    {{-- Property detail is now a dedicated page (renter.property) --}}
+    @if(false)
+        <div>
             {{-- Modal Container --}}
             <div class="bg-card border border-line rounded-sm max-w-4xl w-full max-h-[90vh] overflow-y-auto relative" @click.stop style="box-shadow: var(--shadow-lg);">
                 {{-- Close Button --}}

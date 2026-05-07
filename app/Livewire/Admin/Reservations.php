@@ -81,7 +81,13 @@ class Reservations extends Component
             ->paginate($this->perPage);
 
         $viewing = $this->viewingId
-            ? Reservation::with(['property', 'property.propertyType', 'property.address', 'user'])->find($this->viewingId)
+            ? Reservation::with([
+                'property',
+                'property.images',
+                'property.propertyType',
+                'property.address.barangay.city.province',
+                'user',
+              ])->find($this->viewingId)
             : null;
 
         return view('livewire.admin.reservations', compact('reservations', 'viewing'))

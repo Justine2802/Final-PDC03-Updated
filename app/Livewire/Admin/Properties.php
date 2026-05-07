@@ -28,12 +28,9 @@ class Properties extends Component
 
     // CRUD state
     public bool $showModal = false;
-    public bool $showViewModal = false;
     public bool $showDeleteModal = false;
     public ?int $editingId = null;
-    public ?int $viewingId = null;
     public ?int $deletingId = null;
-
     // Multi-step wizard
     public int $currentStep = 1;
     public int $totalSteps = 5;
@@ -117,6 +114,12 @@ class Properties extends Component
             'amenities' => 'nullable|string',
             'price' => 'required|numeric|min:0',
         ];
+    }
+
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetForm();
     }
 
     public function updatingSearch(): void
@@ -311,8 +314,7 @@ class Properties extends Component
 
     public function view(int $id): void
     {
-        $this->viewingId = $id;
-        $this->showViewModal = true;
+        $this->redirect(route('admin.property', $id));
     }
 
     public function confirmDelete(int $id): void
@@ -434,7 +436,7 @@ class Properties extends Component
     private function buildQuery()
     {
         return Property::query()
-            ->with(['address.barangay.city.province.region', 'propertyType'])
+            ->with(['address.barangay.city.province.region', 'propertyType', 'images'])
             ->when($this->search, fn ($q) => $q->where(fn ($sq) => $sq
                 ->where('title', 'like', "%{$this->search}%")
                 ->orWhereHas('address', fn ($aq) => $aq
@@ -462,9 +464,7 @@ class Properties extends Component
         $barangays = $this->city_id ? Barangay::where('city_id', $this->city_id)->orderBy('name')->get() : collect();
         $allCities = City::with('province')->orderBy('name')->get();
         $propertyTypes = PropertyType::all();
-        $viewProperty = $this->viewingId ? Property::with(['address.barangay.city.province.region', 'propertyType', 'user', 'images'])->find($this->viewingId) : null;
-
-        return view('livewire.admin.properties', compact('properties', 'activeFilterCount', 'regions', 'provinces', 'cities', 'barangays', 'allCities', 'propertyTypes', 'viewProperty'))
+        return view('livewire.admin.properties', compact('properties', 'activeFilterCount', 'regions', 'provinces', 'cities', 'barangays', 'allCities', 'propertyTypes'))
             ->layout('components.layouts.admin')
             ->title('Properties');
     }
