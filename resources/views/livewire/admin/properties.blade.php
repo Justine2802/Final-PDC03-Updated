@@ -454,7 +454,7 @@
                                             <button type="button" @click="$wire.set('bedrooms', '{{ $val }}', false)"
                                                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm border-2 text-sm font-medium transition-colors"
                                                 :class="$wire.bedrooms === '{{ $val }}' ? 'border-foreground bg-foreground/5 text-foreground' : 'border-line text-dim hover:border-dim'">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.5V19h18V9.5M1 19h22M5 9.5V6a2 2 0 012-2h4a2 2 0 012 2v3.5" /><path stroke-linecap="round" stroke-linejoin="round" d="M5 9.5h14" /></svg>
                                                 {{ $val === '0' ? 'Any' : $val }}
                                             </button>
                                         @endforeach
@@ -469,7 +469,7 @@
                                             <button type="button" @click="$wire.set('bathrooms', '{{ $val }}', false)"
                                                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm border-2 text-sm font-medium transition-colors"
                                                 :class="$wire.bathrooms === '{{ $val }}' ? 'border-foreground bg-foreground/5 text-foreground' : 'border-line text-dim hover:border-dim'">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16a1 1 0 011 1v2a4 4 0 01-4 4H7a4 4 0 01-4-4v-2a1 1 0 011-1z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 12V7a2 2 0 012-2h1" /><path stroke-linecap="round" stroke-linejoin="round" d="M10 19v2M14 19v2" /></svg>
                                                 {{ $val === '0' ? 'Any' : $val }}
                                             </button>
                                         @endforeach
